@@ -1,0 +1,8 @@
+R_DEF: Internal format may change without notice
+local
+id classesButton
+id gradesButton
+id printButton
+id studentsButton
+layout activity_main
+style AppTheme

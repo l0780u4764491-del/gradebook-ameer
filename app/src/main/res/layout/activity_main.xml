@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F7FB">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="سجل درجات الاجتماعيات"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="#101827"
+            android:layout_marginTop="30dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="الأستاذ أمير محمد"
+            android:textSize="20sp"
+            android:textColor="#425466"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="نظام إدارة درجات الطلاب"
+            android:textSize="15sp"
+            android:textColor="#718096"
+            android:layout_marginTop="4dp"/>
+
+        <Button
+            android:id="@+id/studentsButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="إدارة الطلاب"
+            android:textSize="18sp"
+            android:layout_marginTop="45dp"/>
+
+        <Button
+            android:id="@+id/classesButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="الشعب الدراسية"
+            android:textSize="18sp"
+            android:layout_marginTop="14dp"/>
+
+        <Button
+            android:id="@+id/gradesButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="إدخال الدرجات"
+            android:textSize="18sp"
+            android:layout_marginTop="14dp"/>
+
+        <Button
+            android:id="@+id/printButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="طباعة السجلات"
+            android:textSize="18sp"
+            android:layout_marginTop="14dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

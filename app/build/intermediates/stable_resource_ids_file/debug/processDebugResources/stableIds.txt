@@ -1,0 +1,6 @@
+com.ameer.gradebook:style/AppTheme = 0x7f030000
+com.ameer.gradebook:id/studentsButton = 0x7f010003
+com.ameer.gradebook:layout/activity_main = 0x7f020000
+com.ameer.gradebook:id/classesButton = 0x7f010000
+com.ameer.gradebook:id/printButton = 0x7f010002
+com.ameer.gradebook:id/gradesButton = 0x7f010001
