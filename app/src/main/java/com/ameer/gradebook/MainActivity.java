@@ -1,458 +1,620 @@
 package com.ameer.gradebook;
 
-import android.app.*;
-import android.os.*;
-import android.content.*;
-import android.graphics.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.os.Bundle;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.text.InputType;
-import android.view.*;
-import android.widget.*;
-import org.json.*;
-import java.util.*;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
 
-    SharedPreferences p;
-    JSONArray students = new JSONArray();
-    JSONArray classes = new JSONArray();
-    LinearLayout root;
+    private SharedPreferences prefs;
 
-    int BLUE = Color.rgb(24,72,130);
-    int DARK = Color.rgb(10,38,72);
-    int BG = Color.rgb(246,248,251);
-    int RED = Color.rgb(190,45,45);
+    private JSONArray students = new JSONArray();
+    private JSONArray classes = new JSONArray();
+
+    private LinearLayout root;
+
+    private final int BLUE = Color.rgb(24,72,130);
+    private final int DARK = Color.rgb(10,38,72);
+    private final int BG = Color.rgb(246,248,251);
+    private final int RED = Color.rgb(190,45,45);
 
     @Override
-    protected void onCreate(Bundle b) {
-        super.onCreate(b);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        p = getSharedPreferences(
+        prefs = getSharedPreferences(
                 "gradebook",
-                MODE_PRIVATE);
+                Context.MODE_PRIVATE
+        );
 
-        load();
-        home();
+        loadData();
+        showHome();
     }
 
-    void load() {
+    private void loadData() {
+
         try {
+
             students = new JSONArray(
-                    p.getString("students","[]"));
+                    prefs.getString(
+                            "students",
+                            "[]"
+                    )
+            );
 
             classes = new JSONArray(
-                    p.getString("classes","[]"));
+                    prefs.getString(
+                            "classes",
+                            "[]"
+                    )
+            );
 
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             students = new JSONArray();
             classes = new JSONArray();
         }
     }
 
-    void save() {
-        p.edit()
+    private void saveData() {
+
+        prefs.edit()
                 .putString(
                         "students",
-                        students.toString())
+                        students.toString()
+                )
                 .putString(
                         "classes",
-                        classes.toString())
+                        classes.toString()
+                )
                 .apply();
     }
 
-    void base() {
-        ScrollView s =
+    private void setup() {
+
+        ScrollView scroll =
                 new ScrollView(this);
 
         root =
                 new LinearLayout(this);
 
         root.setOrientation(
-                LinearLayout.VERTICAL);
+                LinearLayout.VERTICAL
+        );
 
         root.setPadding(
-                20,20,20,35);
+                20,
+                20,
+                20,
+                35
+        );
 
         root.setBackgroundColor(BG);
 
-        s.addView(root);
+        scroll.addView(root);
 
-        setContentView(s);
+        setContentView(scroll);
     }
 
-    TextView text(
-            String t,
+    private TextView txt(
+            String value,
             int size,
             boolean bold) {
 
-        TextView v =
+        TextView t =
                 new TextView(this);
 
-        v.setText(t);
-        v.setTextSize(size);
-        v.setTextColor(Color.DKGRAY);
+        t.setText(value);
 
-        v.setPadding(
-                8,10,8,10);
+        t.setTextSize(size);
 
-        if(bold) {
-            v.setTypeface(
+        t.setTextColor(
+                Color.DKGRAY
+        );
+
+        t.setPadding(
+                8,
+                10,
+                8,
+                10
+        );
+
+        if (bold) {
+
+            t.setTypeface(
                     Typeface.DEFAULT,
-                    Typeface.BOLD);
+                    Typeface.BOLD
+            );
         }
 
-        return v;
+        return t;
     }
 
-    void title(String t) {
+    private void title(String value) {
 
-        TextView v =
-                text(t,22,true);
+        TextView t =
+                txt(
+                        value,
+                        22,
+                        true
+                );
 
-        v.setTextColor(Color.WHITE);
+        t.setTextColor(
+                Color.WHITE
+        );
 
-        v.setGravity(
-                Gravity.CENTER);
+        t.setGravity(
+                Gravity.CENTER
+        );
 
-        v.setPadding(
-                10,28,10,28);
+        t.setPadding(
+                10,
+                28,
+                10,
+                28
+        );
 
-        v.setBackgroundColor(DARK);
+        t.setBackgroundColor(
+                DARK
+        );
 
-        root.addView(
-                v,
-                new LinearLayout.LayoutParams(
-                        -1,
-                        -2));
+        root.addView(t);
     }
 
-    Button btn(String t) {
+    private Button button(String value) {
 
         Button b =
                 new Button(this);
 
-        b.setText(t);
-        b.setTextSize(16);
-        b.setAllCaps(false);
-        b.setTextColor(Color.WHITE);
-        b.setBackgroundColor(BLUE);
+        b.setText(value);
 
-        LinearLayout.LayoutParams x =
+        b.setTextSize(16);
+
+        b.setAllCaps(false);
+
+        b.setTextColor(
+                Color.WHITE
+        );
+
+        b.setBackgroundColor(
+                BLUE
+        );
+
+        LinearLayout.LayoutParams params =
                 new LinearLayout.LayoutParams(
                         -1,
-                        58);
+                        58
+                );
 
-        x.setMargins(
-                0,6,0,6);
+        params.setMargins(
+                0,
+                6,
+                0,
+                6
+        );
 
-        root.addView(b,x);
+        root.addView(
+                b,
+                params
+        );
 
         return b;
     }
 
-    EditText input(String hint) {
+    private EditText input(
+            String hint) {
 
         EditText e =
                 new EditText(this);
 
         e.setHint(hint);
+
         e.setTextSize(16);
 
         e.setPadding(
-                12,5,12,5);
+                12,
+                5,
+                12,
+                5
+        );
 
-        LinearLayout.LayoutParams x =
+        LinearLayout.LayoutParams params =
                 new LinearLayout.LayoutParams(
                         -1,
-                        60);
+                        60
+                );
 
-        x.setMargins(
-                0,5,0,5);
+        params.setMargins(
+                0,
+                5,
+                0,
+                5
+        );
 
-        e.setLayoutParams(x);
+        e.setLayoutParams(params);
 
         return e;
     }
 
-    EditText gradeInput(String hint) {
+    private EditText gradeInput(
+            String hint) {
 
         EditText e =
                 input(hint);
 
         e.setInputType(
                 InputType.TYPE_CLASS_NUMBER |
-                InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                InputType.TYPE_NUMBER_FLAG_DECIMAL
+        );
 
         return e;
     }
 
-    LinearLayout card() {
+    private LinearLayout card() {
 
         LinearLayout c =
                 new LinearLayout(this);
 
         c.setOrientation(
-                LinearLayout.VERTICAL);
+                LinearLayout.VERTICAL
+        );
 
         c.setPadding(
-                16,12,16,12);
+                16,
+                12,
+                16,
+                12
+        );
 
         c.setBackgroundColor(
-                Color.WHITE);
+                Color.WHITE
+        );
 
-        LinearLayout.LayoutParams x =
+        LinearLayout.LayoutParams params =
                 new LinearLayout.LayoutParams(
                         -1,
-                        -2);
+                        -2
+                );
 
-        x.setMargins(
-                0,6,0,6);
+        params.setMargins(
+                0,
+                6,
+                0,
+                6
+        );
 
-        c.setLayoutParams(x);
+        c.setLayoutParams(params);
 
         return c;
     }
 
-    void addCard(LinearLayout c) {
-        root.addView(c);
-    }
-
-    void cardText(
-            LinearLayout c,
-            String t,
+    private void addText(
+            LinearLayout card,
+            String value,
             int size,
             boolean bold) {
 
-        c.addView(
-                text(
-                        t,
+        card.addView(
+                txt(
+                        value,
                         size,
-                        bold));
+                        bold
+                )
+        );
     }
 
-    void home() {
+    private void toast(
+            String message) {
 
-        base();
+        Toast.makeText(
+                this,
+                message,
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    private ArrayList<String> classList() {
+
+        ArrayList<String> list =
+                new ArrayList<>();
+
+        for (int i = 0;
+             i < classes.length();
+             i++) {
+
+            try {
+
+                list.add(
+                        classes.getString(i)
+                );
+
+            } catch (Exception e) {
+                // تجاهل
+            }
+        }
+
+        if (list.size() == 0) {
+
+            list.add(
+                    "الصف الأول"
+            );
+        }
+
+        return list;
+    }
+
+    private Spinner spinner() {
+
+        Spinner s =
+                new Spinner(this);
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout
+                                .simple_spinner_item,
+                        classList()
+                );
+
+        adapter.setDropDownViewResource(
+                android.R.layout
+                        .simple_spinner_dropdown_item
+        );
+
+        s.setAdapter(adapter);
+
+        return s;
+    }
+
+    private void showHome() {
+
+        setup();
 
         title(
-                "سجل درجات الاجتماعيات");
+                "سجل درجات الاجتماعيات"
+        );
 
-        TextView h =
-                text(
+        TextView info =
+                txt(
                         "الأستاذ أمير محمد\n" +
                         "نظام إدارة درجات الطلاب",
                         18,
-                        true);
+                        true
+                );
 
-        h.setGravity(
-                Gravity.CENTER);
+        info.setGravity(
+                Gravity.CENTER
+        );
 
-        root.addView(h);
+        root.addView(info);
 
-        Button a =
-                btn("👨‍🎓 إدارة الطلاب");
+        Button studentsButton =
+                button(
+                        "👨‍🎓 إدارة الطلاب"
+                );
 
-        a.setOnClickListener(
-                v -> students());
+        studentsButton.setOnClickListener(
+                v -> showStudents()
+        );
 
-        Button b =
-                btn("🏫 إدارة الصفوف");
+        Button classesButton =
+                button(
+                        "🏫 إدارة الصفوف"
+                );
 
-        b.setOnClickListener(
-                v -> classes());
+        classesButton.setOnClickListener(
+                v -> showClasses()
+        );
 
-        Button c =
-                btn("📝 إدخال الدرجات");
+        Button gradesButton =
+                button(
+                        "📝 إدخال الدرجات"
+                );
 
-        c.setOnClickListener(
-                v -> grades());
+        gradesButton.setOnClickListener(
+                v -> showGrades()
+        );
 
-        Button d =
-                btn("📋 سجل الدرجات");
+        Button recordsButton =
+                button(
+                        "📋 سجل الدرجات"
+                );
 
-        d.setOnClickListener(
-                v -> records());
+        recordsButton.setOnClickListener(
+                v -> showRecords()
+        );
 
-        Button e =
-                btn("🏆 ترتيب الطلاب");
+        Button rankingButton =
+                button(
+                        "🏆 ترتيب الطلاب"
+                );
 
-        e.setOnClickListener(
-                v -> ranking());
+        rankingButton.setOnClickListener(
+                v -> showRanking()
+        );
 
-        Button f =
-                btn("📊 التقارير");
+        Button reportsButton =
+                button(
+                        "📊 التقارير"
+                );
 
-        f.setOnClickListener(
-                v -> reports());
+        reportsButton.setOnClickListener(
+                v -> showReports()
+        );
 
-        Button g =
-                btn("💾 النسخ الاحتياطي");
+        Button backupButton =
+                button(
+                        "💾 النسخ الاحتياطي"
+                );
 
-        g.setOnClickListener(
-                v -> backup());
+        backupButton.setOnClickListener(
+                v -> showBackup()
+        );
 
-        Button z =
-                btn("⚙️ الإعدادات");
+        Button settingsButton =
+                button(
+                        "⚙️ الإعدادات"
+                );
 
-        z.setOnClickListener(
-                v -> settings());
+        settingsButton.setOnClickListener(
+                v -> showSettings()
+        );
 
         root.addView(
-                text(
+                txt(
                         "عدد الطلاب: " +
                         students.length() +
                         "\nعدد الصفوف: " +
                         classes.length(),
                         16,
-                        true));
+                        true
+                )
+        );
     }
 
-    ArrayList<String> classList() {
+    // ===== نهاية القسم 1 =====
+    // ===== القسم 2: إدارة الطلاب =====
 
-        ArrayList<String> a =
-                new ArrayList<>();
+    private void showStudents() {
 
-        for(int i=0;
-            i<classes.length();
-            i++) {
-
-            try {
-                a.add(
-                        classes.getString(i));
-
-            } catch(Exception e) {}
-        }
-
-        if(a.size()==0) {
-            a.add("الصف الأول");
-        }
-
-        return a;
-    }
-
-    Spinner spinner() {
-
-        Spinner s =
-                new Spinner(this);
-
-        ArrayAdapter<String> a =
-                new ArrayAdapter<>(
-                        this,
-                        android.R.layout
-                                .simple_spinner_item,
-                        classList());
-
-        a.setDropDownViewResource(
-                android.R.layout
-                        .simple_spinner_dropdown_item);
-
-        s.setAdapter(a);
-
-        return s;
-    }
-
-    void students() {
-
-        base();
+        setup();
 
         title("إدارة الطلاب");
 
         Button back =
-                btn("← الرئيسية");
+                button("← الرئيسية");
 
         back.setOnClickListener(
-                v -> home());
+                v -> showHome()
+        );
 
         Button add =
-                btn("＋ إضافة طالب");
+                button("＋ إضافة طالب");
 
         add.setOnClickListener(
-                v -> addStudent());
+                v -> addStudent()
+        );
 
-        if(students.length()==0) {
+        if (students.length() == 0) {
 
             root.addView(
-                    text(
+                    txt(
                             "لا يوجد طلاب.",
                             17,
-                            false));
+                            false
+                    )
+            );
 
             return;
         }
 
-        for(int i=0;
-            i<students.length();
-            i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
 
             try {
 
-                JSONObject s =
+                JSONObject student =
                         students.getJSONObject(i);
 
-                final int n = i;
+                final int index = i;
 
-                LinearLayout c =
+                LinearLayout card =
                         card();
 
-                cardText(
-                        c,
-                        s.optString("name"),
+                addText(
+                        card,
+                        student.optString("name"),
                         19,
-                        true);
+                        true
+                );
 
-                cardText(
-                        c,
+                addText(
+                        card,
                         "المدرسة: " +
-                        s.optString("school"),
+                        student.optString("school"),
                         15,
-                        false);
+                        false
+                );
 
-                cardText(
-                        c,
+                addText(
+                        card,
                         "الصف: " +
-                        s.optString("className"),
+                        student.optString("className"),
                         15,
-                        false);
+                        false
+                );
 
                 Button edit =
                         new Button(this);
 
-                edit.setText(
-                        "✏️ تعديل");
+                edit.setText("✏️ تعديل");
 
                 edit.setOnClickListener(
-                        v -> editStudent(n));
+                        v -> editStudent(index)
+                );
 
-                Button del =
+                Button delete =
                         new Button(this);
 
-                del.setText(
-                        "🗑️ حذف");
+                delete.setText("🗑️ حذف");
 
-                del.setTextColor(RED);
+                delete.setTextColor(RED);
 
-                del.setOnClickListener(
-                        v -> deleteStudent(n));
+                delete.setOnClickListener(
+                        v -> deleteStudent(index)
+                );
 
-                c.addView(edit);
-                c.addView(del);
+                card.addView(edit);
+                card.addView(delete);
 
-                addCard(c);
+                root.addView(card);
 
-            } catch(Exception e) {}
+            } catch (Exception e) {
+                // تجاهل الطالب غير الصالح
+            }
         }
     }
 
-    void addStudent() {
+    private void addStudent() {
 
         LinearLayout box =
                 new LinearLayout(this);
 
         box.setOrientation(
-                LinearLayout.VERTICAL);
+                LinearLayout.VERTICAL
+        );
 
         box.setPadding(
-                25,5,25,5);
+                25,
+                5,
+                25,
+                5
+        );
 
         EditText name =
                 input("اسم الطالب");
@@ -460,133 +622,165 @@ public class MainActivity extends Activity {
         EditText school =
                 input("اسم المدرسة");
 
-        Spinner sp =
+        Spinner spinner =
                 spinner();
 
         box.addView(name);
         box.addView(school);
-        box.addView(sp);
+        box.addView(spinner);
 
         new AlertDialog.Builder(this)
+
                 .setTitle("إضافة طالب")
+
                 .setView(box)
+
                 .setPositiveButton(
                         "حفظ",
-                        (d,w) -> {
-
-                            String n =
-                                    name.getText()
-                                            .toString()
-                                            .trim();
-
-                            if(n.isEmpty()) {
-
-                                toast(
-                                        "أدخل اسم الطالب");
-
-                                return;
-                            }
+                        (dialog, which) -> {
 
                             try {
 
-                                JSONObject s =
+                                String studentName =
+                                        name.getText()
+                                                .toString()
+                                                .trim();
+
+                                if (studentName.isEmpty()) {
+
+                                    toast(
+                                            "أدخل اسم الطالب"
+                                    );
+
+                                    return;
+                                }
+
+                                JSONObject student =
                                         new JSONObject();
 
-                                s.put(
+                                student.put(
                                         "name",
-                                        n);
+                                        studentName
+                                );
 
-                                s.put(
+                                student.put(
                                         "school",
                                         school.getText()
                                                 .toString()
-                                                .trim());
+                                                .trim()
+                                );
 
-                                s.put(
+                                student.put(
                                         "className",
-                                        sp.getSelectedItem()
-                                                .toString());
+                                        spinner
+                                                .getSelectedItem()
+                                                .toString()
+                                );
 
-                                s.put(
+                                student.put(
                                         "monthly",
-                                        0);
+                                        0
+                                );
 
-                                s.put(
+                                student.put(
                                         "mid",
-                                        0);
+                                        0
+                                );
 
-                                s.put(
+                                student.put(
                                         "second",
-                                        0);
+                                        0
+                                );
 
-                                s.put(
+                                student.put(
                                         "final",
-                                        0);
+                                        0
+                                );
 
-                                students.put(s);
+                                students.put(
+                                        student
+                                );
 
-                                save();
+                                saveData();
 
-                                students();
-
-                                toast(
-                                        "تمت إضافة الطالب");
-
-                            } catch(Exception e) {
+                                showStudents();
 
                                 toast(
-                                        "حدث خطأ");
+                                        "تمت إضافة الطالب"
+                                );
+
+                            } catch (Exception e) {
+
+                                toast(
+                                        "حدث خطأ أثناء إضافة الطالب"
+                                );
                             }
-                        })
+                        }
+                )
+
                 .setNegativeButton(
                         "إلغاء",
-                        null)
+                        null
+                )
+
                 .show();
     }
 
-    void editStudent(
-            final int i) {
+    private void editStudent(
+            final int index) {
 
         try {
 
-            JSONObject s =
-                    students.getJSONObject(i);
+            JSONObject student =
+                    students.getJSONObject(index);
 
             LinearLayout box =
                     new LinearLayout(this);
 
             box.setOrientation(
-                    LinearLayout.VERTICAL);
+                    LinearLayout.VERTICAL
+            );
 
             box.setPadding(
-                    25,5,25,5);
+                    25,
+                    5,
+                    25,
+                    5
+            );
 
             EditText name =
                     input("اسم الطالب");
 
             name.setText(
-                    s.optString("name"));
+                    student.optString("name")
+            );
 
             EditText school =
                     input("اسم المدرسة");
 
             school.setText(
-                    s.optString("school"));
+                    student.optString("school")
+            );
 
-            Spinner sp =
+            Spinner spinner =
                     spinner();
 
-            for(int x=0;
-                x<sp.getCount();
-                x++) {
+            for (int i = 0;
+                 i < spinner.getCount();
+                 i++) {
 
-                if(sp.getItemAtPosition(x)
-                        .toString()
-                        .equals(
-                                s.optString(
-                                        "className"))) {
+                if (
+                        spinner
+                                .getItemAtPosition(i)
+                                .toString()
+                                .equals(
+                                        student.optString(
+                                                "className"
+                                        )
+                                )
+                ) {
 
-                    sp.setSelection(x);
+                    spinner.setSelection(i);
 
                     break;
                 }
@@ -594,302 +788,17 @@ public class MainActivity extends Activity {
 
             box.addView(name);
             box.addView(school);
-            box.addView(sp);
+            box.addView(spinner);
 
             new AlertDialog.Builder(this)
-                    .setTitle(
-                            "تعديل الطالب")
+
+                    .setTitle("تعديل الطالب")
+
                     .setView(box)
+
                     .setPositiveButton(
                             "حفظ",
-                            (d,w) -> {
-
-                                try {
-
-                                    s.put(
-                                            "name",
-                                            name.getText()
-                                                    .toString()
-                                                    .trim());
-
-                                    s.put(
-                                            "school",
-                                            school.getText()
-                                                    .toString()
-                                                    .trim());
-
-                                    s.put(
-                                            "className",
-                                            sp.getSelectedItem()
-                                                    .toString());
-
-                                    save();
-
-                                    students();
-
-                                } catch(Exception e) {
-
-                                    toast(
-                                            "حدث خطأ");
-                                }
-                            })
-                    .setNegativeButton(
-                            "إلغاء",
-                            null)
-                    .show();
-
-        } catch(Exception e) {
-
-            toast(
-                    "تعذر فتح الطالب");
-        }
-    }
-
-    void deleteStudent(
-            final int index) {
-
-        new AlertDialog.Builder(this)
-                .setTitle(
-                        "حذف الطالب")
-                .setMessage(
-                        "هل تريد حذف هذا الطالب؟")
-                .setPositiveButton(
-                        "حذف",
-                        (d,w) -> {
-
-                            try {
-
-                                JSONArray a =
-                                        new JSONArray();
-
-                                for(int i=0;
-                                    i<students.length();
-                                    i++) {
-
-                                    if(i != index) {
-
-                                        a.put(
-                                                students
-                                                        .getJSONObject(i));
-                                    }
-                                }
-
-                                students = a;
-
-                                save();
-
-                                students();
-
-                            } catch(Exception e) {
-
-                                toast(
-                                        "حدث خطأ");
-                            }
-                        })
-                .setNegativeButton(
-                        "إلغاء",
-                        null)
-                .show();
-    }
-
-    /    void classes() {
-
-        base();
-
-        title("إدارة الصفوف");
-
-        Button back =
-                btn("← الرئيسية");
-
-        back.setOnClickListener(
-                v -> home());
-
-        Button add =
-                btn("＋ إضافة صف");
-
-        add.setOnClickListener(
-                v -> addClass());
-
-        if(classes.length()==0) {
-
-            root.addView(
-                    text(
-                            "لا توجد صفوف مضافة.",
-                            17,
-                            false));
-
-            return;
-        }
-
-        for(int i=0;
-            i<classes.length();
-            i++) {
-
-            try {
-
-                final int n = i;
-
-                String name =
-                        classes.getString(i);
-
-                LinearLayout c =
-                        card();
-
-                cardText(
-                        c,
-                        name,
-                        19,
-                        true);
-
-                int count = 0;
-
-                for(int j=0;
-                    j<students.length();
-                    j++) {
-
-                    try {
-
-                        JSONObject s =
-                                students.getJSONObject(j);
-
-                        if(name.equals(
-                                s.optString(
-                                        "className"))) {
-
-                            count++;
-                        }
-
-                    } catch(Exception e) {}
-                }
-
-                cardText(
-                        c,
-                        "عدد الطلاب: " +
-                        count,
-                        15,
-                        false);
-
-                Button edit =
-                        new Button(this);
-
-                edit.setText(
-                        "✏️ تعديل اسم الصف");
-
-                edit.setOnClickListener(
-                        v -> editClass(n));
-
-                Button del =
-                        new Button(this);
-
-                del.setText(
-                        "🗑️ حذف الصف");
-
-                del.setTextColor(RED);
-
-                del.setOnClickListener(
-                        v -> deleteClass(n));
-
-                c.addView(edit);
-                c.addView(del);
-
-                addCard(c);
-
-            } catch(Exception e) {}
-        }
-    }
-
-    void addClass() {
-
-        EditText name =
-                input("اسم الصف");
-
-        new AlertDialog.Builder(this)
-                .setTitle(
-                        "إضافة صف")
-                .setView(name)
-                .setPositiveButton(
-                        "حفظ",
-                        (d,w) -> {
-
-                            String n =
-                                    name.getText()
-                                            .toString()
-                                            .trim();
-
-                            if(n.isEmpty()) {
-
-                                toast(
-                                        "أدخل اسم الصف");
-
-                                return;
-                            }
-
-                            try {
-
-                                boolean exists =
-                                        false;
-
-                                for(int i=0;
-                                    i<classes.length();
-                                    i++) {
-
-                                    if(n.equals(
-                                            classes.getString(i))) {
-
-                                        exists = true;
-                                        break;
-                                    }
-                                }
-
-                                if(exists) {
-
-                                    toast(
-                                            "هذا الصف موجود مسبقاً");
-
-                                    return;
-                                }
-
-                                classes.put(n);
-
-                                save();
-
-                                classes();
-
-                                toast(
-                                        "تمت إضافة الصف");
-
-                            } catch(Exception e) {
-
-                                toast(
-                                        "حدث خطأ");
-                            }
-                        })
-                .setNegativeButton(
-                        "إلغاء",
-                        null)
-                .show();
-    }
-
-    void editClass(
-            final int index) {
-
-        try {
-
-            String oldName =
-                    classes.getString(index);
-
-            EditText name =
-                    input("اسم الصف");
-
-            name.setText(oldName);
-
-            new AlertDialog.Builder(this)
-                    .setTitle(
-                            "تعديل الصف")
-                    .setView(name)
-                    .setPositiveButton(
-                            "حفظ",
-                            (d,w) -> {
+                            (dialog, which) -> {
 
                                 try {
 
@@ -898,533 +807,1101 @@ public class MainActivity extends Activity {
                                                     .toString()
                                                     .trim();
 
-                                    if(newName.isEmpty()) {
+                                    if (
+                                            newName.isEmpty()
+                                    ) {
 
                                         toast(
-                                                "أدخل اسم الصف");
+                                                "أدخل اسم الطالب"
+                                        );
 
                                         return;
                                     }
 
-                                    if(!oldName.equals(
-                                            newName)) {
+                                    student.put(
+                                            "name",
+                                            newName
+                                    );
 
-                                        for(int i=0;
-                                            i<classes.length();
-                                            i++) {
+                                    student.put(
+                                            "school",
+                                            school.getText()
+                                                    .toString()
+                                                    .trim()
+                                    );
 
-                                            if(newName.equals(
-                                                    classes.getString(i))) {
+                                    student.put(
+                                            "className",
+                                            spinner
+                                                    .getSelectedItem()
+                                                    .toString()
+                                    );
 
-                                                toast(
-                                                        "هذا الصف موجود مسبقاً");
+                                    saveData();
 
-                                                return;
-                                            }
+                                    showStudents();
+
+                                    toast(
+                                            "تم تعديل بيانات الطالب"
+                                    );
+
+                                } catch (Exception e) {
+
+                                    toast(
+                                            "حدث خطأ أثناء التعديل"
+                                    );
+                                }
+                            }
+                    )
+
+                    .setNegativeButton(
+                            "إلغاء",
+                            null
+                    )
+
+                    .show();
+
+        } catch (Exception e) {
+
+            toast(
+                    "تعذر فتح بيانات الطالب"
+            );
+        }
+    }
+
+    private void deleteStudent(
+            final int index) {
+
+        new AlertDialog.Builder(this)
+
+                .setTitle("حذف الطالب")
+
+                .setMessage(
+                        "هل تريد حذف هذا الطالب؟"
+                )
+
+                .setPositiveButton(
+                        "حذف",
+                        (dialog, which) -> {
+
+                            try {
+
+                                JSONArray newStudents =
+                                        new JSONArray();
+
+                                for (int i = 0;
+                                     i < students.length();
+                                     i++) {
+
+                                    if (i != index) {
+
+                                        newStudents.put(
+                                                students
+                                                        .getJSONObject(i)
+                                        );
+                                    }
+                                }
+
+                                students =
+                                        newStudents;
+
+                                saveData();
+
+                                showStudents();
+
+                                toast(
+                                        "تم حذف الطالب"
+                                );
+
+                            } catch (Exception e) {
+
+                                toast(
+                                        "حدث خطأ أثناء الحذف"
+                                );
+                            }
+                        }
+                )
+
+                .setNegativeButton(
+                        "إلغاء",
+                        null
+                )
+
+                .show();
+    }
+
+    // ===== نهاية القسم 2 =====
+    // ===== القسم 3: إدارة الصفوف =====
+
+    private void showClasses() {
+
+        setup();
+
+        title("إدارة الصفوف");
+
+        Button back =
+                button("← الرئيسية");
+
+        back.setOnClickListener(
+                v -> showHome()
+        );
+
+        Button add =
+                button("＋ إضافة صف");
+
+        add.setOnClickListener(
+                v -> addClass()
+        );
+
+        if (classes.length() == 0) {
+
+            root.addView(
+                    txt(
+                            "لا توجد صفوف حالياً.",
+                            17,
+                            false
+                    )
+            );
+
+            return;
+        }
+
+        for (int i = 0;
+             i < classes.length();
+             i++) {
+
+            try {
+
+                final int index = i;
+
+                String className =
+                        classes.getString(i);
+
+                LinearLayout card =
+                        card();
+
+                addText(
+                        card,
+                        className,
+                        19,
+                        true
+                );
+
+                int count = 0;
+
+                for (int j = 0;
+                     j < students.length();
+                     j++) {
+
+                    JSONObject student =
+                            students.getJSONObject(j);
+
+                    if (
+                            className.equals(
+                                    student.optString(
+                                            "className"
+                                    )
+                            )
+                    ) {
+
+                        count++;
+                    }
+                }
+
+                addText(
+                        card,
+                        "عدد الطلاب: " + count,
+                        15,
+                        false
+                );
+
+                Button rename =
+                        new Button(this);
+
+                rename.setText("✏️ تعديل اسم الصف");
+
+                rename.setOnClickListener(
+                        v -> editClass(index)
+                );
+
+                Button delete =
+                        new Button(this);
+
+                delete.setText("🗑️ حذف الصف");
+
+                delete.setTextColor(RED);
+
+                delete.setOnClickListener(
+                        v -> deleteClass(index)
+                );
+
+                card.addView(rename);
+                card.addView(delete);
+
+                root.addView(card);
+
+            } catch (Exception e) {
+                // تجاهل الصف غير الصالح
+            }
+        }
+    }
+
+    private void addClass() {
+
+        final EditText name =
+                input("اسم الصف");
+
+        new AlertDialog.Builder(this)
+
+                .setTitle("إضافة صف")
+
+                .setView(name)
+
+                .setPositiveButton(
+                        "حفظ",
+                        (dialog, which) -> {
+
+                            String className =
+                                    name.getText()
+                                            .toString()
+                                            .trim();
+
+                            if (className.isEmpty()) {
+
+                                toast(
+                                        "أدخل اسم الصف"
+                                );
+
+                                return;
+                            }
+
+                            try {
+
+                                for (int i = 0;
+                                     i < classes.length();
+                                     i++) {
+
+                                    if (
+                                            classes
+                                                    .getString(i)
+                                                    .equals(
+                                                            className
+                                                    )
+                                    ) {
+
+                                        toast(
+                                                "هذا الصف موجود مسبقاً"
+                                        );
+
+                                        return;
+                                    }
+                                }
+
+                                classes.put(
+                                        className
+                                );
+
+                                saveData();
+
+                                showClasses();
+
+                                toast(
+                                        "تمت إضافة الصف"
+                                );
+
+                            } catch (Exception e) {
+
+                                toast(
+                                        "حدث خطأ أثناء إضافة الصف"
+                                );
+                            }
+                        }
+                )
+
+                .setNegativeButton(
+                        "إلغاء",
+                        null
+                )
+
+                .show();
+    }
+
+    private void editClass(
+            final int index) {
+
+        try {
+
+            final String oldName =
+                    classes.getString(index);
+
+            final EditText name =
+                    input("اسم الصف");
+
+            name.setText(oldName);
+
+            new AlertDialog.Builder(this)
+
+                    .setTitle("تعديل اسم الصف")
+
+                    .setView(name)
+
+                    .setPositiveButton(
+                            "حفظ",
+                            (dialog, which) -> {
+
+                                String newName =
+                                        name.getText()
+                                                .toString()
+                                                .trim();
+
+                                if (
+                                        newName.isEmpty()
+                                ) {
+
+                                    toast(
+                                            "أدخل اسم الصف"
+                                    );
+
+                                    return;
+                                }
+
+                                try {
+
+                                    if (
+                                            newName.equals(
+                                                    oldName
+                                            )
+                                    ) {
+
+                                        return;
+                                    }
+
+                                    for (int i = 0;
+                                         i < classes.length();
+                                         i++) {
+
+                                        if (
+                                                i != index &&
+                                                classes
+                                                        .getString(i)
+                                                        .equals(
+                                                                newName
+                                                        )
+                                        ) {
+
+                                            toast(
+                                                    "هذا الصف موجود مسبقاً"
+                                            );
+
+                                            return;
                                         }
                                     }
 
                                     classes.put(
                                             index,
-                                            newName);
+                                            newName
+                                    );
 
-                                    for(int i=0;
-                                        i<students.length();
-                                        i++) {
+                                    for (int i = 0;
+                                         i < students.length();
+                                         i++) {
 
-                                        JSONObject s =
+                                        JSONObject student =
                                                 students
                                                         .getJSONObject(i);
 
-                                        if(oldName.equals(
-                                                s.optString(
-                                                        "className"))) {
+                                        if (
+                                                oldName.equals(
+                                                        student.optString(
+                                                                "className"
+                                                        )
+                                                )
+                                        ) {
 
-                                            s.put(
+                                            student.put(
                                                     "className",
-                                                    newName);
+                                                    newName
+                                            );
                                         }
                                     }
 
-                                    save();
+                                    saveData();
 
-                                    classes();
-
-                                } catch(Exception e) {
+                                    showClasses();
 
                                     toast(
-                                            "حدث خطأ");
+                                            "تم تعديل اسم الصف"
+                                    );
+
+                                } catch (Exception e) {
+
+                                    toast(
+                                            "حدث خطأ أثناء تعديل الصف"
+                                    );
                                 }
-                            })
+                            }
+                    )
+
                     .setNegativeButton(
                             "إلغاء",
-                            null)
+                            null
+                    )
+
                     .show();
 
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             toast(
-                    "تعذر تعديل الصف");
+                    "تعذر تعديل الصف"
+            );
         }
     }
 
-    void deleteClass(
-            final int index) {
-
-        new AlertDialog.Builder(this)
-                .setTitle(
-                        "حذف الصف")
-                .setMessage(
-                        "سيتم حذف الصف من القائمة، " +
-                        "ولن يتم حذف الطلاب. هل تريد المتابعة؟")
-                .setPositiveButton(
-                        "حذف",
-                        (d,w) -> {
-
-                            try {
-
-                                String name =
-                                        classes.getString(index);
-
-                                JSONArray a =
-                                        new JSONArray();
-
-                                for(int i=0;
-                                    i<classes.length();
-                                    i++) {
-
-                                    if(i != index) {
-
-                                        a.put(
-                                                classes.getString(i));
-                                    }
-                                }
-
-                                classes = a;
-
-                                for(int i=0;
-                                    i<students.length();
-                                    i++) {
-
-                                    JSONObject s =
-                                            students
-                                                    .getJSONObject(i);
-
-                                    if(name.equals(
-                                            s.optString(
-                                                    "className"))) {
-
-                                        s.put(
-                                                "className",
-                                                "");
-                                    }
-                                }
-
-                                save();
-
-                                classes();
-
-                            } catch(Exception e) {
-
-                                toast(
-                                        "حدث خطأ");
-                            }
-                        })
-                .setNegativeButton(
-                        "إلغاء",
-                        null)
-                .show();
-    }
-
-    void grades() {
-
-        base();
-
-        title("إدخال الدرجات");
-
-        Button back =
-                btn("← الرئيسية");
-
-        back.setOnClickListener(
-                v -> home());
-
-        if(students.length()==0) {
-
-            root.addView(
-                    text(
-                            "أضف الطلاب أولاً من إدارة الطلاب.",
-                            17,
-                            true));
-
-            return;
-        }
-
-        for(int i=0;
-            i<students.length();
-            i++) {
-
-            try {
-
-                final int n = i;
-
-                JSONObject s =
-                        students.getJSONObject(i);
-
-                LinearLayout c =
-                        card();
-
-                cardText(
-                        c,
-                        s.optString("name"),
-                        19,
-                        true);
-
-                cardText(
-                        c,
-                        "الصف: " +
-                        s.optString("className"),
-                        15,
-                        false);
-
-                Button edit =
-                        new Button(this);
-
-                edit.setText(
-                        "📝 إدخال / تعديل الدرجات");
-
-                edit.setOnClickListener(
-                        v -> gradeStudent(n));
-
-                c.addView(edit);
-
-                addCard(c);
-
-            } catch(Exception e) {}
-        }
-    }
-
-    void gradeStudent(
+    private void deleteClass(
             final int index) {
 
         try {
 
-            JSONObject s =
+            final String className =
+                    classes.getString(index);
+
+            int count = 0;
+
+            for (int i = 0;
+                 i < students.length();
+                 i++) {
+
+                JSONObject student =
+                        students.getJSONObject(i);
+
+                if (
+                        className.equals(
+                                student.optString(
+                                        "className"
+                                )
+                        )
+                ) {
+
+                    count++;
+                }
+            }
+
+            String message;
+
+            if (count > 0) {
+
+                message =
+                        "هذا الصف يحتوي على " +
+                        count +
+                        " طالب.\n\n" +
+                        "حذف الصف لن يحذف الطلاب، " +
+                        "لكن ستحتاج إلى إعادة تعيين صفهم.\n\n" +
+                        "هل تريد المتابعة؟";
+
+            } else {
+
+                message =
+                        "هل تريد حذف الصف؟";
+            }
+
+            new AlertDialog.Builder(this)
+
+                    .setTitle("حذف الصف")
+
+                    .setMessage(message)
+
+                    .setPositiveButton(
+                            "حذف",
+                            (dialog, which) -> {
+
+                                try {
+
+                                    JSONArray newClasses =
+                                            new JSONArray();
+
+                                    for (int i = 0;
+                                         i < classes.length();
+                                         i++) {
+
+                                        if (i != index) {
+
+                                            newClasses.put(
+                                                    classes
+                                                            .getString(i)
+                                            );
+                                        }
+                                    }
+
+                                    classes =
+                                            newClasses;
+
+                                    saveData();
+
+                                    showClasses();
+
+                                    toast(
+                                            "تم حذف الصف"
+                                    );
+
+                                } catch (Exception e) {
+
+                                    toast(
+                                            "حدث خطأ أثناء حذف الصف"
+                                    );
+                                }
+                            }
+                    )
+
+                    .setNegativeButton(
+                            "إلغاء",
+                            null
+                    )
+
+                    .show();
+
+        } catch (Exception e) {
+
+            toast(
+                    "تعذر حذف الصف"
+            );
+        }
+    }
+
+    // ===== نهاية القسم 3 =====
+    // ===== القسم 4: إدخال الدرجات والسجل =====
+
+    private void showGrades() {
+
+        setup();
+
+        title("إدخال الدرجات");
+
+        Button back =
+                button("← الرئيسية");
+
+        back.setOnClickListener(
+                v -> showHome()
+        );
+
+        if (students.length() == 0) {
+
+            root.addView(
+                    txt(
+                            "أضف الطلاب أولاً من إدارة الطلاب.",
+                            17,
+                            false
+                    )
+            );
+
+            return;
+        }
+
+        Spinner classSpinner =
+                spinner();
+
+        root.addView(classSpinner);
+
+        Button open =
+                button("فتح طلاب الصف");
+
+        open.setOnClickListener(
+                v -> showGradeStudents(
+                        classSpinner
+                                .getSelectedItem()
+                                .toString()
+                )
+        );
+    }
+
+    private void showGradeStudents(
+            String className) {
+
+        setup();
+
+        title(
+                "درجات " + className
+        );
+
+        Button back =
+                button("← إدخال الدرجات");
+
+        back.setOnClickListener(
+                v -> showGrades()
+        );
+
+        boolean found = false;
+
+        for (int i = 0;
+             i < students.length();
+             i++) {
+
+            try {
+
+                JSONObject student =
+                        students.getJSONObject(i);
+
+                if (
+                        !className.equals(
+                                student.optString(
+                                        "className"
+                                )
+                        )
+                ) {
+                    continue;
+                }
+
+                found = true;
+
+                final int index = i;
+
+                LinearLayout card =
+                        card();
+
+                addText(
+                        card,
+                        student.optString("name"),
+                        19,
+                        true
+                );
+
+                addText(
+                        card,
+                        "الصف: " +
+                        student.optString("className"),
+                        14,
+                        false
+                );
+
+                Button grades =
+                        new Button(this);
+
+                grades.setText(
+                        "📝 إدخال / تعديل الدرجات"
+                );
+
+                grades.setOnClickListener(
+                        v -> editGrades(index)
+                );
+
+                card.addView(grades);
+
+                root.addView(card);
+
+            } catch (Exception e) {
+                // تجاهل
+            }
+        }
+
+        if (!found) {
+
+            root.addView(
+                    txt(
+                            "لا يوجد طلاب في هذا الصف.",
+                            17,
+                            false
+                    )
+            );
+        }
+    }
+
+    private void editGrades(
+            final int index) {
+
+        try {
+
+            JSONObject student =
                     students.getJSONObject(index);
 
             LinearLayout box =
                     new LinearLayout(this);
 
             box.setOrientation(
-                    LinearLayout.VERTICAL);
+                    LinearLayout.VERTICAL
+            );
 
             box.setPadding(
-                    25,5,25,5);
+                    20,
+                    5,
+                    20,
+                    5
+            );
+
+            addText(
+                    box,
+                    student.optString("name"),
+                    19,
+                    true
+            );
 
             EditText monthly =
                     gradeInput(
-                            "درجة الشهر الأول");
-
-            EditText mid =
-                    gradeInput(
-                            "درجة نصف السنة");
-
-            EditText second =
-                    gradeInput(
-                            "درجة الشهر الثاني");
-
-            EditText fin =
-                    gradeInput(
-                            "الدرجة النهائية");
+                            "أعمال الشهر"
+                    );
 
             monthly.setText(
                     String.valueOf(
-                            s.optDouble(
+                            student.optDouble(
                                     "monthly",
-                                    0)));
+                                    0
+                            )
+                    )
+            );
+
+            EditText mid =
+                    gradeInput(
+                            "نصف السنة"
+                    );
 
             mid.setText(
                     String.valueOf(
-                            s.optDouble(
+                            student.optDouble(
                                     "mid",
-                                    0)));
+                                    0
+                            )
+                    )
+            );
+
+            EditText second =
+                    gradeInput(
+                            "النصف الثاني"
+                    );
 
             second.setText(
                     String.valueOf(
-                            s.optDouble(
+                            student.optDouble(
                                     "second",
-                                    0)));
+                                    0
+                            )
+                    )
+            );
 
-            fin.setText(
+            EditText finalGrade =
+                    gradeInput(
+                            "الدرجة النهائية"
+                    );
+
+            finalGrade.setText(
                     String.valueOf(
-                            s.optDouble(
+                            student.optDouble(
                                     "final",
-                                    0)));
-
-            box.addView(
-                    text(
-                            "الطالب: " +
-                            s.optString("name"),
-                            18,
-                            true));
+                                    0
+                            )
+                    )
+            );
 
             box.addView(monthly);
             box.addView(mid);
             box.addView(second);
-            box.addView(fin);
+            box.addView(finalGrade);
 
             new AlertDialog.Builder(this)
-                    .setTitle(
-                            "درجات الطالب")
+
+                    .setTitle("درجات الطالب")
+
                     .setView(box)
+
                     .setPositiveButton(
                             "حفظ",
-                            (d,w) -> {
+                            (dialog, which) -> {
 
                                 try {
 
-                                    s.put(
+                                    double m =
+                                            readGrade(
+                                                    monthly
+                                            );
+
+                                    double mi =
+                                            readGrade(
+                                                    mid
+                                            );
+
+                                    double s =
+                                            readGrade(
+                                                    second
+                                            );
+
+                                    double f =
+                                            readGrade(
+                                                    finalGrade
+                                            );
+
+                                    if (
+                                            m < 0 ||
+                                            m > 100 ||
+                                            mi < 0 ||
+                                            mi > 100 ||
+                                            s < 0 ||
+                                            s > 100 ||
+                                            f < 0 ||
+                                            f > 100
+                                    ) {
+
+                                        toast(
+                                                "الدرجات يجب أن تكون بين 0 و100"
+                                        );
+
+                                        return;
+                                    }
+
+                                    student.put(
                                             "monthly",
-                                            number(monthly));
+                                            m
+                                    );
 
-                                    s.put(
+                                    student.put(
                                             "mid",
-                                            number(mid));
+                                            mi
+                                    );
 
-                                    s.put(
+                                    student.put(
                                             "second",
-                                            number(second));
+                                            s
+                                    );
 
-                                    s.put(
+                                    student.put(
                                             "final",
-                                            number(fin));
+                                            f
+                                    );
 
-                                    save();
-
-                                    toast(
-                                            "تم حفظ الدرجات");
-
-                                } catch(Exception e) {
+                                    saveData();
 
                                     toast(
-                                            "حدث خطأ في الدرجات");
+                                            "تم حفظ الدرجات"
+                                    );
+
+                                } catch (Exception e) {
+
+                                    toast(
+                                            "حدث خطأ أثناء حفظ الدرجات"
+                                    );
                                 }
-                            })
+                            }
+                    )
+
                     .setNegativeButton(
                             "إلغاء",
-                            null)
+                            null
+                    )
+
                     .show();
 
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             toast(
-                    "تعذر فتح درجات الطالب");
+                    "تعذر فتح درجات الطالب"
+            );
         }
     }
 
-    double number(EditText e) {
+    private double readGrade(
+            EditText field) {
 
-        try {
+        String value =
+                field.getText()
+                        .toString()
+                        .trim();
 
-            String x =
-                    e.getText()
-                            .toString()
-                            .trim();
-
-            if(x.isEmpty()) {
-                return 0;
-            }
-
-            double n =
-                    Double.parseDouble(x);
-
-            if(n < 0) {
-                n = 0;
-            }
-
-            if(n > 100) {
-                n = 100;
-            }
-
-            return n;
-
-        } catch(Exception ex) {
-
+        if (value.isEmpty()) {
             return 0;
         }
+
+        return Double.parseDouble(value);
     }
 
-    //     void records() {
+    private void showRecords() {
 
-        base();
+        setup();
 
         title("سجل الدرجات");
 
         Button back =
-                btn("← الرئيسية");
+                button("← الرئيسية");
 
         back.setOnClickListener(
-                v -> home());
+                v -> showHome()
+        );
 
-        if(students.length()==0) {
+        if (students.length() == 0) {
 
             root.addView(
-                    text(
+                    txt(
                             "لا يوجد طلاب.",
                             17,
-                            false));
+                            false
+                    )
+            );
 
             return;
         }
 
-        for(int i=0;
-            i<students.length();
-            i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
 
             try {
 
-                JSONObject s =
+                JSONObject student =
                         students.getJSONObject(i);
 
-                LinearLayout c =
+                LinearLayout card =
                         card();
 
-                double m =
-                        s.optDouble(
+                String name =
+                        student.optString(
+                                "name"
+                        );
+
+                String className =
+                        student.optString(
+                                "className"
+                        );
+
+                double monthly =
+                        student.optDouble(
                                 "monthly",
-                                0);
+                                0
+                        );
 
                 double mid =
-                        s.optDouble(
+                        student.optDouble(
                                 "mid",
-                                0);
+                                0
+                        );
 
-                double sec =
-                        s.optDouble(
+                double second =
+                        student.optDouble(
                                 "second",
-                                0);
+                                0
+                        );
 
-                double fin =
-                        s.optDouble(
+                double finalGrade =
+                        student.optDouble(
                                 "final",
-                                0);
+                                0
+                        );
 
-                double total =
-                        m + mid + sec + fin;
+                double average =
+                        (
+                                monthly +
+                                mid +
+                                second +
+                                finalGrade
+                        ) / 4.0;
 
-                double avg =
-                        total / 4.0;
-
-                cardText(
-                        c,
-                        s.optString("name"),
+                addText(
+                        card,
+                        name,
                         19,
-                        true);
+                        true
+                );
 
-                cardText(
-                        c,
-                        "الصف: " +
-                        s.optString("className"),
+                addText(
+                        card,
+                        "الصف: " + className,
                         15,
-                        false);
+                        false
+                );
 
-                cardText(
-                        c,
-                        "الشهر الأول: " +
-                        fmt(m),
+                addText(
+                        card,
+                        "أعمال الشهر: " +
+                        formatGrade(monthly),
                         15,
-                        false);
+                        false
+                );
 
-                cardText(
-                        c,
+                addText(
+                        card,
                         "نصف السنة: " +
-                        fmt(mid),
+                        formatGrade(mid),
                         15,
-                        false);
+                        false
+                );
 
-                cardText(
-                        c,
-                        "الشهر الثاني: " +
-                        fmt(sec),
+                addText(
+                        card,
+                        "النصف الثاني: " +
+                        formatGrade(second),
                         15,
-                        false);
+                        false
+                );
 
-                cardText(
-                        c,
-                        "النهائية: " +
-                        fmt(fin),
+                addText(
+                        card,
+                        "النهائي: " +
+                        formatGrade(finalGrade),
                         15,
-                        false);
+                        false
+                );
 
-                cardText(
-                        c,
-                        "المجموع: " +
-                        fmt(total),
-                        16,
-                        true);
-
-                cardText(
-                        c,
+                addText(
+                        card,
                         "المعدل: " +
-                        fmt(avg),
+                        formatGrade(average),
                         17,
-                        true);
+                        true
+                );
 
-                addCard(c);
+                root.addView(card);
 
-            } catch(Exception e) {}
+            } catch (Exception e) {
+                // تجاهل
+            }
         }
     }
 
-    String fmt(double n) {
+    private String formatGrade(
+            double value) {
 
-        if(n == (long)n) {
+        if (
+                value == Math.floor(value)
+        ) {
 
             return String.valueOf(
-                    (long)n);
+                    (int) value
+            );
         }
 
         return String.format(
                 Locale.US,
                 "%.2f",
-                n);
+                value
+        );
     }
 
-    void ranking() {
+    // ===== نهاية القسم 4 =====
+    // ===== القسم 5 والأخير: الترتيب والتقارير والنسخ الاحتياطي =====
 
-        base();
+    private void showRanking() {
 
-        title("ترتيب الطلاب");
+        setup();
+
+        title("🏆 ترتيب الطلاب");
 
         Button back =
-                btn("← الرئيسية");
+                button("← الرئيسية");
 
         back.setOnClickListener(
-                v -> home());
-
-        if(students.length()==0) {
-
-            root.addView(
-                    text(
-                            "لا يوجد طلاب.",
-                            17,
-                            false));
-
-            return;
-        }
+                v -> showHome()
+        );
 
         ArrayList<JSONObject> list =
                 new ArrayList<>();
 
-        for(int i=0;
-            i<students.length();
-            i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
 
             try {
 
                 list.add(
-                        students.getJSONObject(i));
+                        students.getJSONObject(i)
+                );
 
-            } catch(Exception e) {}
+            } catch (Exception e) {
+                // تجاهل
+            }
         }
 
         Collections.sort(
@@ -1436,192 +1913,232 @@ public class MainActivity extends Activity {
                             JSONObject a,
                             JSONObject b) {
 
-                        double aa =
-                                average(a);
+                        double av =
+                                averageOf(a);
 
-                        double bb =
-                                average(b);
+                        double bv =
+                                averageOf(b);
 
                         return Double.compare(
-                                bb,
-                                aa);
+                                bv,
+                                av
+                        );
                     }
-                });
+                }
+        );
 
-        for(int i=0;
-            i<list.size();
-            i++) {
+        if (list.size() == 0) {
 
-            JSONObject s =
+            root.addView(
+                    txt(
+                            "لا يوجد طلاب لترتيبهم.",
+                            17,
+                            false
+                    )
+            );
+
+            return;
+        }
+
+        for (int i = 0;
+             i < list.size();
+             i++) {
+
+            JSONObject student =
                     list.get(i);
 
-            LinearLayout c =
+            LinearLayout card =
                     card();
 
-            double avg =
-                    average(s);
-
-            cardText(
-                    c,
-                    "المركز " +
-                    (i+1),
-                    16,
-                    true);
-
-            cardText(
-                    c,
-                    s.optString("name"),
-                    19,
-                    true);
-
-            cardText(
-                    c,
-                    "الصف: " +
-                    s.optString("className"),
-                    15,
-                    false);
-
-            cardText(
-                    c,
-                    "المعدل: " +
-                    fmt(avg),
+            addText(
+                    card,
+                    "المركز " + (i + 1),
                     18,
-                    true);
+                    true
+            );
 
-            addCard(c);
+            addText(
+                    card,
+                    student.optString("name"),
+                    19,
+                    true
+            );
+
+            addText(
+                    card,
+                    "الصف: " +
+                    student.optString(
+                            "className"
+                    ),
+                    15,
+                    false
+            );
+
+            addText(
+                    card,
+                    "المعدل: " +
+                    formatGrade(
+                            averageOf(student)
+                    ),
+                    17,
+                    true
+            );
+
+            root.addView(card);
         }
     }
 
-    double average(
-            JSONObject s) {
+    private double averageOf(
+            JSONObject student) {
 
-        double a =
-                s.optDouble(
+        double monthly =
+                student.optDouble(
                         "monthly",
-                        0);
+                        0
+                );
 
-        double b =
-                s.optDouble(
+        double mid =
+                student.optDouble(
                         "mid",
-                        0);
+                        0
+                );
 
-        double c =
-                s.optDouble(
+        double second =
+                student.optDouble(
                         "second",
-                        0);
+                        0
+                );
 
-        double d =
-                s.optDouble(
+        double finalGrade =
+                student.optDouble(
                         "final",
-                        0);
+                        0
+                );
 
-        return (a+b+c+d)/4.0;
+        return (
+                monthly +
+                mid +
+                second +
+                finalGrade
+        ) / 4.0;
     }
 
-    void reports() {
+    private void showReports() {
 
-        base();
+        setup();
 
-        title("التقارير");
+        title("📊 التقارير");
 
         Button back =
-                btn("← الرئيسية");
+                button("← الرئيسية");
 
         back.setOnClickListener(
-                v -> home());
+                v -> showHome()
+        );
 
         int totalStudents =
                 students.length();
 
-        double sum = 0;
+        int totalClasses =
+                classes.length();
 
-        int success = 0;
+        double totalAverage = 0;
+
+        int passed = 0;
 
         int failed = 0;
 
-        for(int i=0;
-            i<students.length();
-            i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
 
             try {
 
-                JSONObject s =
+                JSONObject student =
                         students.getJSONObject(i);
 
-                double avg =
-                        average(s);
+                double average =
+                        averageOf(student);
 
-                sum += avg;
+                totalAverage += average;
 
-                if(avg >= 50) {
-
-                    success++;
-
+                if (average >= 50) {
+                    passed++;
                 } else {
-
                     failed++;
                 }
 
-            } catch(Exception e) {}
+            } catch (Exception e) {
+                // تجاهل
+            }
         }
 
-        double general = 0;
+        double generalAverage = 0;
 
-        if(totalStudents > 0) {
+        if (totalStudents > 0) {
 
-            general =
-                    sum / totalStudents;
+            generalAverage =
+                    totalAverage /
+                    totalStudents;
         }
 
-        LinearLayout c =
+        LinearLayout summary =
                 card();
 
-        cardText(
-                c,
-                "إحصائيات عامة",
+        addText(
+                summary,
+                "ملخص عام",
                 20,
-                true);
+                true
+        );
 
-        cardText(
-                c,
+        addText(
+                summary,
+                "عدد الصفوف: " +
+                totalClasses,
+                16,
+                false
+        );
+
+        addText(
+                summary,
                 "عدد الطلاب: " +
                 totalStudents,
-                17,
-                false);
+                16,
+                false
+        );
 
-        cardText(
-                c,
-                "عدد الصفوف: " +
-                classes.length(),
-                17,
-                false);
+        addText(
+                summary,
+                "عدد الناجحين: " +
+                passed,
+                16,
+                false
+        );
 
-        cardText(
-                c,
-                "الناجحون: " +
-                success,
-                17,
-                false);
-
-        cardText(
-                c,
-                "الراسبون: " +
+        addText(
+                summary,
+                "عدد الراسبين: " +
                 failed,
-                17,
-                false);
+                16,
+                false
+        );
 
-        cardText(
-                c,
+        addText(
+                summary,
                 "المعدل العام: " +
-                fmt(general),
+                formatGrade(
+                        generalAverage
+                ),
                 18,
-                true);
+                true
+        );
 
-        addCard(c);
+        root.addView(summary);
 
-        for(int i=0;
-            i<classes.length();
-            i++) {
+        for (int i = 0;
+             i < classes.length();
+             i++) {
 
             try {
 
@@ -1630,244 +2147,191 @@ public class MainActivity extends Activity {
 
                 int count = 0;
 
-                int pass = 0;
+                double total = 0;
 
-                double sumClass = 0;
+                for (int j = 0;
+                     j < students.length();
+                     j++) {
 
-                for(int j=0;
-                    j<students.length();
-                    j++) {
-
-                    JSONObject s =
+                    JSONObject student =
                             students.getJSONObject(j);
 
-                    if(className.equals(
-                            s.optString(
-                                    "className"))) {
+                    if (
+                            className.equals(
+                                    student.optString(
+                                            "className"
+                                    )
+                            )
+                    ) {
 
                         count++;
 
-                        double avg =
-                                average(s);
-
-                        sumClass += avg;
-
-                        if(avg >= 50) {
-
-                            pass++;
-                        }
+                        total +=
+                                averageOf(
+                                        student
+                                );
                     }
                 }
 
-                double classAvg = 0;
+                double avg = 0;
 
-                if(count > 0) {
+                if (count > 0) {
 
-                    classAvg =
-                            sumClass / count;
+                    avg =
+                            total / count;
                 }
 
-                LinearLayout x =
+                LinearLayout classCard =
                         card();
 
-                cardText(
-                        x,
+                addText(
+                        classCard,
                         className,
                         19,
-                        true);
+                        true
+                );
 
-                cardText(
-                        x,
+                addText(
+                        classCard,
                         "عدد الطلاب: " +
                         count,
                         15,
-                        false);
+                        false
+                );
 
-                cardText(
-                        x,
-                        "الناجحون: " +
-                        pass,
-                        15,
-                        false);
-
-                cardText(
-                        x,
-                        "الراسبون: " +
-                        (count-pass),
-                        15,
-                        false);
-
-                cardText(
-                        x,
+                addText(
+                        classCard,
                         "معدل الصف: " +
-                        fmt(classAvg),
+                        formatGrade(avg),
                         17,
-                        true);
+                        true
+                );
 
-                addCard(x);
+                root.addView(
+                        classCard
+                );
 
-            } catch(Exception e) {}
+            } catch (Exception e) {
+                // تجاهل
+            }
         }
     }
 
-    //     void backup() {
+    private void showBackup() {
 
-        base();
+        setup();
 
-        title("النسخ الاحتياطي");
+        title("💾 النسخ الاحتياطي");
 
         Button back =
-                btn("← الرئيسية");
+                button("← الرئيسية");
 
         back.setOnClickListener(
-                v -> home());
+                v -> showHome()
+        );
 
-        LinearLayout c =
-                card();
-
-        cardText(
-                c,
-                "نسخة احتياطية للبيانات",
-                20,
-                true);
-
-        cardText(
-                c,
-                "يمكنك حفظ بيانات الطلاب والصفوف " +
-                "في ملف نصي ومشاركته.",
+        addTextToRoot(
+                "يمكنك حفظ نسخة احتياطية من بيانات الطلاب والصفوف داخل التطبيق.",
                 16,
-                false);
+                false
+        );
 
         Button export =
-                btn("📤 تصدير نسخة احتياطية");
+                button(
+                        "📦 إنشاء نسخة احتياطية"
+                );
 
         export.setOnClickListener(
-                v -> exportBackup());
+                v -> exportBackup()
+        );
 
-        Button restore =
-                btn("📥 استيراد نسخة احتياطية");
+        Button clear =
+                button(
+                        "🗑️ حذف جميع البيانات"
+                );
 
-        restore.setOnClickListener(
-                v -> toast(
-                        "سيتم تفعيل الاستيراد في الإصدار القادم"));
+        clear.setTextColor(RED);
 
-        addCard(c);
+        clear.setOnClickListener(
+                v -> clearAllData()
+        );
     }
 
-    void exportBackup() {
+    private void addTextToRoot(
+            String value,
+            int size,
+            boolean bold) {
+
+        root.addView(
+                txt(
+                        value,
+                        size,
+                        bold
+                )
+        );
+    }
+
+    private void exportBackup() {
 
         try {
 
-            JSONObject data =
+            JSONObject backup =
                     new JSONObject();
 
-            data.put(
+            backup.put(
                     "students",
-                    students);
+                    students
+            );
 
-            data.put(
+            backup.put(
                     "classes",
-                    classes);
+                    classes
+            );
 
-            Intent share =
-                    new Intent(
-                            Intent.ACTION_SEND);
+            String data =
+                    backup.toString(2);
 
-            share.setType(
-                    "text/plain");
+            new AlertDialog.Builder(this)
 
-            share.putExtra(
-                    Intent.EXTRA_TEXT,
-                    data.toString(2));
+                    .setTitle(
+                            "النسخة الاحتياطية"
+                    )
 
-            startActivity(
-                    Intent.createChooser(
-                            share,
-                            "حفظ أو مشاركة النسخة الاحتياطية"));
+                    .setMessage(data)
 
-        } catch(Exception e) {
+                    .setPositiveButton(
+                            "حسناً",
+                            null
+                    )
+
+                    .show();
+
+        } catch (Exception e) {
 
             toast(
-                    "تعذر إنشاء النسخة الاحتياطية");
+                    "تعذر إنشاء النسخة الاحتياطية"
+            );
         }
     }
 
-    void settings() {
-
-        base();
-
-        title("الإعدادات");
-
-        Button back =
-                btn("← الرئيسية");
-
-        back.setOnClickListener(
-                v -> home());
-
-        LinearLayout c =
-                card();
-
-        cardText(
-                c,
-                "إعدادات سجل الدرجات",
-                20,
-                true);
-
-        cardText(
-                c,
-                "اسم النظام: سجل درجات الاجتماعيات",
-                16,
-                false);
-
-        cardText(
-                c,
-                "الأستاذ: أمير محمد",
-                16,
-                false);
-
-        cardText(
-                c,
-                "عدد الطلاب المسجلين: " +
-                students.length(),
-                16,
-                false);
-
-        cardText(
-                c,
-                "عدد الصفوف: " +
-                classes.length(),
-                16,
-                false);
-
-        addCard(c);
-
-        Button clear =
-                btn("⚠️ مسح جميع البيانات");
-
-        clear.setTextColor(
-                Color.WHITE);
-
-        clear.setOnClickListener(
-                v -> confirmClear());
-
-        root.addView(clear);
-    }
-
-    void confirmClear() {
+    private void clearAllData() {
 
         new AlertDialog.Builder(this)
 
                 .setTitle(
-                        "مسح جميع البيانات")
+                        "حذف جميع البيانات"
+                )
 
                 .setMessage(
-                        "تحذير: سيتم حذف جميع الطلاب " +
-                        "والصفوف والدرجات من التطبيق. " +
-                        "هل أنت متأكد؟")
+                        "تحذير!\n\n" +
+                        "سيتم حذف جميع الطلاب " +
+                        "والصفوف والدرجات من التطبيق.\n\n" +
+                        "هل أنت متأكد؟"
+                )
 
                 .setPositiveButton(
                         "حذف الكل",
-                        (d,w) -> {
+                        (dialog, which) -> {
 
                             students =
                                     new JSONArray();
@@ -1875,37 +2339,110 @@ public class MainActivity extends Activity {
                             classes =
                                     new JSONArray();
 
-                            save();
+                            saveData();
 
-                            home();
+                            showHome();
 
                             toast(
-                                    "تم مسح جميع البيانات");
-                        })
+                                    "تم حذف جميع البيانات"
+                            );
+                        }
+                )
 
                 .setNegativeButton(
                         "إلغاء",
-                        null)
+                        null
+                )
 
                 .show();
     }
 
-    void toast(String message) {
+    private void showSettings() {
 
-        Toast.makeText(
-                this,
-                message,
-                Toast.LENGTH_SHORT)
-                .show();
+        setup();
+
+        title("⚙️ الإعدادات");
+
+        Button back =
+                button("← الرئيسية");
+
+        back.setOnClickListener(
+                v -> showHome()
+        );
+
+        LinearLayout card =
+                card();
+
+        addText(
+                card,
+                "سجل درجات الاجتماعيات",
+                20,
+                true
+        );
+
+        addText(
+                card,
+                "الأستاذ أمير محمد",
+                17,
+                false
+        );
+
+        addText(
+                card,
+                "الإصدار 1.0",
+                15,
+                false
+        );
+
+        root.addView(card);
+
+        Button reset =
+                button(
+                        "♻️ إعادة ضبط البيانات"
+                );
+
+        reset.setOnClickListener(
+                v -> clearAllData()
+        );
+
+        Button about =
+                button(
+                        "ℹ️ حول التطبيق"
+                );
+
+        about.setOnClickListener(
+                v -> showAbout()
+        );
     }
 
-    //     // ===== القسم 5 والأخير =====
+    private void showAbout() {
+
+        new AlertDialog.Builder(this)
+
+                .setTitle(
+                        "حول التطبيق"
+                )
+
+                .setMessage(
+                        "سجل درجات الاجتماعيات\n\n" +
+                        "الأستاذ أمير محمد\n\n" +
+                        "تطبيق لإدارة الطلاب " +
+                        "والصفوف والدرجات والتقارير."
+                )
+
+                .setPositiveButton(
+                        "حسناً",
+                        null
+                )
+
+                .show();
+    }
 
     @Override
     public void onBackPressed() {
 
-        home();
+        showHome();
     }
 
-}
-// ===== نهاية MainActivity.java =====
+    // ===== نهاية MainActivity =====
+            }
