@@ -750,7 +750,6 @@ public class MainActivity extends Activity {
 
                     @Override
                     public void beforeTextCh
-                                public void beforeTextChanged(
                     CharSequence s,
                     int start,
                     int count,
