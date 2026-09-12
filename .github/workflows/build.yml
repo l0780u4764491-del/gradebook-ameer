@@ -75,8 +75,8 @@ jobs:
                   applicationId = "com.ameer.gradebook"
                   minSdk = 24
                   targetSdk = 35
-                  versionCode = 1
-                  versionName = "1.0"
+                  versionCode = 2
+                  versionName = "2.0"
               }
 
               buildFeatures {
@@ -95,9 +95,9 @@ jobs:
               implementation("androidx.compose.ui:ui")
               implementation("androidx.compose.ui:ui-tooling-preview")
               implementation("androidx.compose.material3:material3")
+              implementation("androidx.compose.material:material-icons-extended")
               implementation("androidx.activity:activity-compose:1.10.0")
               implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
-
               debugImplementation("androidx.compose.ui:ui-tooling")
           }
           EOF
@@ -131,11 +131,12 @@ jobs:
           cat > app/src/main/res/values/styles.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
-              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+              <style name="AppTheme"
+                  parent="android:style/Theme.Material.Light.NoActionBar">
                   <item name="android:fontFamily">sans</item>
                   <item name="android:windowLightStatusBar">false</item>
-                  <item name="android:statusBarColor">#101827</item>
-                  <item name="android:navigationBarColor">#101827</item>
+                  <item name="android:statusBarColor">#0B1633</item>
+                  <item name="android:navigationBarColor">#0B1633</item>
               </style>
           </resources>
           EOF
@@ -146,16 +147,24 @@ jobs:
           import android.os.Bundle
           import androidx.activity.ComponentActivity
           import androidx.activity.compose.setContent
+          import androidx.compose.foundation.background
+          import androidx.compose.foundation.clickable
           import androidx.compose.foundation.layout.*
           import androidx.compose.foundation.lazy.LazyColumn
           import androidx.compose.foundation.lazy.items
+          import androidx.compose.foundation.shape.RoundedCornerShape
+          import androidx.compose.material.icons.Icons
+          import androidx.compose.material.icons.filled.*
           import androidx.compose.material3.*
           import androidx.compose.runtime.*
           import androidx.compose.ui.Alignment
           import androidx.compose.ui.Modifier
+          import androidx.compose.ui.graphics.Color
           import androidx.compose.ui.text.font.FontWeight
+          import androidx.compose.ui.unit.LayoutDirection
           import androidx.compose.ui.unit.dp
           import androidx.compose.ui.unit.sp
+          import androidx.compose.ui.platform.LocalLayoutDirection
 
           class MainActivity : ComponentActivity() {
               override fun onCreate(savedInstanceState: Bundle?) {
@@ -167,39 +176,149 @@ jobs:
               }
           }
 
-          @OptIn(ExperimentalMaterial3Api::class)
+          private val Navy = Color(0xFF0B1633)
+          private val Navy2 = Color(0xFF14254D)
+          private val Gold = Color(0xFFD4A72C)
+          private val Background = Color(0xFFF4F6FA)
+          private val TextDark = Color(0xFF172033)
+          private val Green = Color(0xFF18865B)
+
           @Composable
           fun GradeBookApp() {
 
               MaterialTheme(
                   colorScheme = lightColorScheme(
-                      primary = androidx.compose.ui.graphics.Color(0xFF172554),
-                      secondary = androidx.compose.ui.graphics.Color(0xFFD4AF37),
-                      background = androidx.compose.ui.graphics.Color(0xFFF5F7FA)
+                      primary = Navy,
+                      secondary = Gold,
+                      background = Background,
+                      surface = Color.White,
+                      onSurface = TextDark
                   )
               ) {
+                  CompositionLocalProvider(
+                      LocalLayoutDirection provides LayoutDirection.Rtl
+                  ) {
+                      GradeBookHome()
+                  }
+              }
+          }
 
-                  Scaffold(
-                      topBar = {
-                          TopAppBar(
-                              title = {
+          @OptIn(ExperimentalMaterial3Api::class)
+          @Composable
+          fun GradeBookHome() {
+
+              var selected by remember { mutableStateOf(0) }
+
+              Scaffold(
+                  containerColor = Background,
+
+                  topBar = {
+                      TopAppBar(
+                          colors = TopAppBarDefaults.topAppBarColors(
+                              containerColor = Navy,
+                              titleContentColor = Color.White
+                          ),
+                          title = {
+                              Row(
+                                  verticalAlignment = Alignment.CenterVertically
+                              ) {
+                                  Surface(
+                                      shape = RoundedCornerShape(12.dp),
+                                      color = Gold,
+                                      modifier = Modifier.size(44.dp)
+                                  ) {
+                                      Box(
+                                          contentAlignment = Alignment.Center
+                                      ) {
+                                          Icon(
+                                              Icons.Default.School,
+                                              contentDescription = null,
+                                              tint = Navy
+                                          )
+                                      }
+                                  }
+
+                                  Spacer(Modifier.width(12.dp))
+
                                   Column {
                                       Text(
-                                          text = "سجل درجات الاجتماعيات",
-                                          fontSize = 20.sp,
+                                          "سجل درجات الاجتماعيات",
+                                          fontSize = 18.sp,
                                           fontWeight = FontWeight.Bold
                                       )
                                       Text(
-                                          text = "الأستاذ أمير محمد",
-                                          fontSize = 13.sp
+                                          "الأستاذ أمير محمد",
+                                          fontSize = 12.sp,
+                                          color = Color.White.copy(alpha = .75f)
                                       )
                                   }
                               }
+                          }
+                      )
+                  },
+
+                  bottomBar = {
+                      NavigationBar(
+                          containerColor = Color.White
+                      ) {
+                          NavigationBarItem(
+                              selected = selected == 0,
+                              onClick = { selected = 0 },
+                              icon = {
+                                  Icon(Icons.Default.Home, null)
+                              },
+                              label = { Text("الرئيسية") }
+                          )
+
+                          NavigationBarItem(
+                              selected = selected == 1,
+                              onClick = { selected = 1 },
+                              icon = {
+                                  Icon(Icons.Default.Groups, null)
+                              },
+                              label = { Text("الطلاب") }
+                          )
+
+                          NavigationBarItem(
+                              selected = selected == 2,
+                              onClick = { selected = 2 },
+                              icon = {
+                                  Icon(Icons.Default.Assessment, null)
+                              },
+                              label = { Text("الدرجات") }
+                          )
+
+                          NavigationBarItem(
+                              selected = selected == 3,
+                              onClick = { selected = 3 },
+                              icon = {
+                                  Icon(Icons.Default.Print, null)
+                              },
+                              label = { Text("التقارير") }
                           )
                       }
-                  ) { padding ->
+                  }
 
-                      HomeScreen(
+              ) { padding ->
+
+                  when (selected) {
+
+                      0 -> Dashboard(
+                          modifier = Modifier.padding(padding),
+                          onStudents = { selected = 1 },
+                          onGrades = { selected = 2 },
+                          onReports = { selected = 3 }
+                      )
+
+                      1 -> StudentsScreen(
+                          modifier = Modifier.padding(padding)
+                      )
+
+                      2 -> GradesScreen(
+                          modifier = Modifier.padding(padding)
+                      )
+
+                      3 -> ReportsScreen(
                           modifier = Modifier.padding(padding)
                       )
                   }
@@ -207,109 +326,256 @@ jobs:
           }
 
           @Composable
-          fun HomeScreen(modifier: Modifier = Modifier) {
-
-              val sections = listOf(
-                  "الشعبة الأولى",
-                  "الشعبة الثانية",
-                  "الشعبة الثالثة",
-                  "الشعبة الرابعة"
-              )
+          fun Dashboard(
+              modifier: Modifier = Modifier,
+              onStudents: () -> Unit,
+              onGrades: () -> Unit,
+              onReports: () -> Unit
+          ) {
 
               LazyColumn(
                   modifier = modifier
                       .fillMaxSize()
                       .padding(16.dp),
-                  verticalArrangement = Arrangement.spacedBy(12.dp)
+                  verticalArrangement = Arrangement.spacedBy(16.dp)
               ) {
 
                   item {
-                      Card(
-                          modifier = Modifier.fillMaxWidth()
+                      WelcomeCard()
+                  }
+
+                  item {
+                      Text(
+                          "نظرة عامة",
+                          fontSize = 21.sp,
+                          fontWeight = FontWeight.Bold,
+                          color = TextDark
+                      )
+                  }
+
+                  item {
+                      Row(
+                          modifier = Modifier.fillMaxWidth(),
+                          horizontalArrangement = Arrangement.spacedBy(10.dp)
                       ) {
-                          Column(
-                              modifier = Modifier.padding(20.dp)
-                          ) {
-                              Text(
-                                  text = "مرحباً بك في سجل الدرجات",
-                                  fontSize = 22.sp,
-                                  fontWeight = FontWeight.Bold
-                              )
+                          StatisticCard(
+                              title = "الشعب",
+                              value = "4",
+                              icon = Icons.Default.Groups,
+                              modifier = Modifier.weight(1f)
+                          )
 
-                              Spacer(modifier = Modifier.height(8.dp))
-
-                              Text(
-                                  text = "إدارة درجات الطلاب والشعب والحسابات السنوية بسهولة."
-                              )
-                          }
+                          StatisticCard(
+                              title = "الطلاب",
+                              value = "200",
+                              icon = Icons.Default.Person,
+                              modifier = Modifier.weight(1f)
+                          )
                       }
                   }
 
                   item {
                       Text(
-                          text = "الشعب",
-                          fontSize = 20.sp,
-                          fontWeight = FontWeight.Bold
+                          "الوصول السريع",
+                          fontSize = 21.sp,
+                          fontWeight = FontWeight.Bold,
+                          color = TextDark
                       )
                   }
 
-                  items(sections) { section ->
-
-                      Card(
-                          modifier = Modifier.fillMaxWidth()
-                      ) {
-                          Row(
-                              modifier = Modifier
-                                  .fillMaxWidth()
-                                  .padding(18.dp),
-                              verticalAlignment = Alignment.CenterVertically
-                          ) {
-
-                              Column(
-                                  modifier = Modifier.weight(1f)
-                              ) {
-                                  Text(
-                                      text = section,
-                                      fontSize = 18.sp,
-                                      fontWeight = FontWeight.Bold
-                                  )
-
-                                  Text(
-                                      text = "50 طالب"
-                                  )
-                              }
-
-                              Button(
-                                  onClick = {}
-                              ) {
-                                  Text("فتح")
-                              }
-                          }
-                      }
+                  item {
+                      ActionCard(
+                          title = "إدارة الطلاب",
+                          subtitle = "إضافة وتعديل وتنظيم الطلاب حسب الشعبة",
+                          icon = Icons.Default.Groups,
+                          onClick = onStudents
+                      )
                   }
 
                   item {
-                      Spacer(modifier = Modifier.height(8.dp))
+                      ActionCard(
+                          title = "إدخال الدرجات",
+                          subtitle = "الفصل الأول ونصف السنة والفصل الثاني",
+                          icon = Icons.Default.EditNote,
+                          onClick = onGrades
+                      )
+                  }
 
-                      Button(
-                          onClick = {},
-                          modifier = Modifier.fillMaxWidth()
+                  item {
+                      ActionCard(
+                          title = "التقارير والطباعة",
+                          subtitle = "إعداد كشف الشعبة وتجهيزه للطباعة",
+                          icon = Icons.Default.Print,
+                          onClick = onReports
+                      )
+                  }
+
+                  item {
+                      SectionTitle("الشعب الدراسية")
+                  }
+
+                  items(
+                      listOf(
+                          "الشعبة الأولى",
+                          "الشعبة الثانية",
+                          "الشعبة الثالثة",
+                          "الشعبة الرابعة"
+                      )
+                  ) { section ->
+
+                      SectionCard(section)
+                  }
+              }
+          }
+
+          @Composable
+          fun WelcomeCard() {
+
+              Card(
+                  modifier = Modifier.fillMaxWidth(),
+                  shape = RoundedCornerShape(24.dp),
+                  colors = CardDefaults.cardColors(
+                      containerColor = Navy
+                  )
+              ) {
+                  Column(
+                      modifier = Modifier.padding(22.dp)
+                  ) {
+
+                      Text(
+                          "أهلاً بك أستاذ أمير 👋",
+                          color = Color.White,
+                          fontSize = 22.sp,
+                          fontWeight = FontWeight.Bold
+                      )
+
+                      Spacer(Modifier.height(8.dp))
+
+                      Text(
+                          "نظام احترافي لإدارة سجل درجات الاجتماعيات",
+                          color = Color.White.copy(alpha = .8f),
+                          fontSize = 14.sp
+                      )
+
+                      Spacer(Modifier.height(18.dp))
+
+                      Row(
+                          verticalAlignment = Alignment.CenterVertically
                       ) {
+
+                          Box(
+                              modifier = Modifier
+                                  .height(4.dp)
+                                  .width(70.dp)
+                                  .background(
+                                      Gold,
+                                      RoundedCornerShape(10.dp)
+                                  )
+                          )
+
+                          Spacer(Modifier.width(8.dp))
+
                           Text(
-                              text = "إضافة طالب جديد",
-                              fontSize = 17.sp
+                              "العام الدراسي",
+                              color = Color.White.copy(alpha = .7f)
                           )
                       }
                   }
               }
           }
-          EOF
 
-      - name: Build APK
-        run: gradle assembleDebug --stacktrace
+          @Composable
+          fun StatisticCard(
+              title: String,
+              value: String,
+              icon: androidx.compose.ui.graphics.vector.ImageVector,
+              modifier: Modifier
+          ) {
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: GradeBook-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+              Card(
+                  modifier = modifier,
+                  shape = RoundedCornerShape(20.dp),
+                  colors = CardDefaults.cardColors(
+                      containerColor = Color.White
+                  )
+              ) {
+
+                  Column(
+                      modifier = Modifier.padding(18.dp)
+                  ) {
+
+                      Icon(
+                          icon,
+                          null,
+                          tint = Gold,
+                          modifier = Modifier.size(30.dp)
+                      )
+
+                      Spacer(Modifier.height(10.dp))
+
+                      Text(
+                          value,
+                          fontSize = 28.sp,
+                          fontWeight = FontWeight.Bold,
+                          color = Navy
+                      )
+
+                      Text(
+                          title,
+                          color = Color.Gray
+                      )
+                  }
+              }
+          }
+
+          @Composable
+          fun ActionCard(
+              title: String,
+              subtitle: String,
+              icon: androidx.compose.ui.graphics.vector.ImageVector,
+              onClick: () -> Unit
+          ) {
+
+              Card(
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .clickable { onClick() },
+                  shape = RoundedCornerShape(20.dp),
+                  colors = CardDefaults.cardColors(
+                      containerColor = Color.White
+                  )
+              ) {
+
+                  Row(
+                      modifier = Modifier
+                          .fillMaxWidth()
+                          .padding(18.dp),
+                      verticalAlignment = Alignment.CenterVertically
+                  ) {
+
+                      Surface(
+                          modifier = Modifier.size(54.dp),
+                          shape = RoundedCornerShape(16.dp),
+                          color = Navy
+                      ) {
+                          Box(
+                              contentAlignment = Alignment.Center
+                          ) {
+                              Icon(
+                                  icon,
+                                  null,
+                                  tint = Gold,
+                                  modifier = Modifier.size(28.dp)
+                              )
+                          }
+                      }
+
+                      Spacer(Modifier.width(15.dp))
+
+                      Column(
+                          modifier = Modifier.weight(1f)
+                      ) {
+                          Text(
+                              title,
+                              fontSize = 18.sp,
+                              fontWeight = FontWe
