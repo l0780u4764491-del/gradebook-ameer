@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -26,12 +27,7 @@ jobs:
       - name: Create Android project
         run: |
           mkdir -p app/src/main/java/com/ameer/gradebook
-          mkdir -p app/src/main/res/drawable
-          mkdir -p app/src/main/res/mipmap-hdpi
-          mkdir -p app/src/main/res/mipmap-mdpi
-          mkdir -p app/src/main/res/mipmap-xhdpi
-          mkdir -p app/src/main/res/mipmap-xxhdpi
-          mkdir -p app/src/main/res/mipmap-xxxhdpi
+          mkdir -p app/src/main/res/values
 
       - name: Create settings.gradle
         run: |
@@ -92,7 +88,9 @@ jobs:
 
               <application
                   android:theme="@style/AppTheme"
-                  android:label="سجل درجات الاجتماعيات">
+                  android:label="سجل درجات الاجتماعيات"
+                  android:allowBackup="true"
+                  android:supportsRtl="true">
 
                   <activity
                       android:name=".MainActivity"
@@ -110,19 +108,23 @@ jobs:
           </manifest>
           EOF
 
-      - name: Create resources
+      - name: Create styles
         run: |
-          mkdir -p app/src/main/res/values
-
           cat > app/src/main/res/values/styles.xml <<'EOF'
           <resources>
-              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+
+              <style
+                  name="AppTheme"
+                  parent="android:style/Theme.Material.Light.NoActionBar">
+
                   <item name="android:fontFamily">sans</item>
                   <item name="android:windowLightStatusBar">true</item>
                   <item name="android:statusBarColor">#F5F7FB</item>
                   <item name="android:navigationBarColor">#F5F7FB</item>
                   <item name="android:colorAccent">#1565C0</item>
+
               </style>
+
           </resources>
           EOF
 
@@ -135,6 +137,7 @@ jobs:
           import android.os.Bundle;
           import android.graphics.Color;
           import android.view.Gravity;
+          import android.view.View;
           import android.widget.LinearLayout;
           import android.widget.TextView;
           import android.widget.Button;
@@ -147,23 +150,53 @@ jobs:
 
                   LinearLayout layout = new LinearLayout(this);
                   layout.setOrientation(LinearLayout.VERTICAL);
-                  layout.setPadding(40, 80, 40, 40);
+                  layout.setPadding(40, 70, 40, 40);
                   layout.setGravity(Gravity.CENTER_HORIZONTAL);
-                  layout.setBackgroundColor(Color.rgb(245,247,251));
+                  layout.setBackgroundColor(Color.rgb(245, 247, 251));
 
                   TextView title = new TextView(this);
                   title.setText("سجل درجات الاجتماعيات");
                   title.setTextSize(30);
-                  title.setTextColor(Color.rgb(20,30,45));
+                  title.setTextColor(Color.rgb(20, 30, 45));
                   title.setGravity(Gravity.CENTER);
-                  layout.addView(title);
+
+                  layout.addView(
+                      title,
+                      new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT
+                      )
+                  );
 
                   TextView teacher = new TextView(this);
                   teacher.setText("الأستاذ أمير محمد");
                   teacher.setTextSize(22);
+                  teacher.setTextColor(Color.rgb(70, 80, 95));
                   teacher.setGravity(Gravity.CENTER);
-                  teacher.setPadding(0,20,0,50);
-                  layout.addView(teacher);
+                  teacher.setPadding(0, 20, 0, 40);
+
+                  layout.addView(
+                      teacher,
+                      new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT
+                      )
+                  );
+
+                  TextView subtitle = new TextView(this);
+                  subtitle.setText("نظام إدارة درجات الطلاب");
+                  subtitle.setTextSize(17);
+                  subtitle.setTextColor(Color.rgb(100, 110, 125));
+                  subtitle.setGravity(Gravity.CENTER);
+                  subtitle.setPadding(0, 0, 0, 35);
+
+                  layout.addView(
+                      subtitle,
+                      new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT
+                      )
+                  );
 
                   String[] buttons = {
                       "إدارة الطلاب",
@@ -173,15 +206,20 @@ jobs:
                   };
 
                   for (String text : buttons) {
+
                       Button button = new Button(this);
                       button.setText(text);
                       button.setTextSize(18);
+                      button.setAllCaps(false);
+
                       LinearLayout.LayoutParams params =
                           new LinearLayout.LayoutParams(
                               LinearLayout.LayoutParams.MATCH_PARENT,
-                              70
+                              75
                           );
-                      params.setMargins(0, 12, 0, 12);
+
+                      params.setMargins(0, 10, 0, 10);
+
                       layout.addView(button, params);
                   }
 
@@ -195,18 +233,14 @@ jobs:
           gradle wrapper --gradle-version 8.10
           ./gradlew assembleDebug
 
+      - name: Check APK
+        run: |
+          echo "Checking APK..."
+          ls -lh app/build/outputs/apk/debug/
+          test -f app/build/outputs/apk/debug/app-debug.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: GradeBook-APK
           path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-                      Spacer(Modifier.width(15.dp))
-
-                      Column(
-                          modifier = Modifier.weight(1f)
-                      ) {
-                          Text(
-                              title,
-                              fontSize = 18.sp,
-                              fontWeight = FontWe
