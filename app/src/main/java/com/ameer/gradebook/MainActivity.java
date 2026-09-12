@@ -1,5 +1,6 @@
 package com.ameer.gradebook;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -11,19 +12,26 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+public class MainActivity extends Activity {
 
-public class MainActivity extends AppCompatActivity {
-
+    // =========================================
     // ألوان التطبيق
+    // =========================================
+
     private final int NAVY = Color.rgb(8, 29, 58);
     private final int BLUE = Color.rgb(25, 103, 210);
-    private final int LIGHT_BLUE = Color.rgb(235, 243, 255);
+    private final int GREEN = Color.rgb(25, 166, 110);
+    private final int GOLD = Color.rgb(218, 169, 55);
+    private final int PURPLE = Color.rgb(128, 83, 190);
+
     private final int WHITE = Color.WHITE;
     private final int TEXT = Color.rgb(25, 38, 58);
     private final int GRAY = Color.rgb(105, 117, 135);
-    private final int GREEN = Color.rgb(25, 166, 110);
-    private final int GOLD = Color.rgb(218, 169, 55);
+    private final int BACKGROUND = Color.rgb(246, 248, 252);
+
+    // =========================================
+    // بدء التطبيق
+    // =========================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,457 +40,724 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(NAVY);
         getWindow().setNavigationBarColor(NAVY);
 
-        buildHomeScreen();
+        createHomeScreen();
     }
 
-    private void buildHomeScreen() {
+    // =========================================
+    // إنشاء الشاشة الرئيسية
+    // =========================================
 
-        // الصفحة الرئيسية
+    private void createHomeScreen() {
+
         LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(Color.rgb(246, 248, 252));
 
-        // اتجاه عربي RTL
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setBackgroundColor(BACKGROUND);
         root.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
 
-        // Scroll
         ScrollView scrollView = new ScrollView(this);
+
         scrollView.setFillViewport(true);
 
         LinearLayout content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(18), dp(18), dp(18), dp(24));
-        content.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
 
-        // =========================
+        content.setOrientation(LinearLayout.VERTICAL);
+
+        content.setPadding(
+                dp(18),
+                dp(18),
+                dp(18),
+                dp(24)
+        );
+
+        content.setLayoutDirection(
+                View.LAYOUT_DIRECTION_RTL
+        );
+
+        // =====================================
         // رأس التطبيق
-        // =========================
+        // =====================================
 
         LinearLayout header = new LinearLayout(this);
-        header.setOrientation(LinearLayout.HORIZONTAL);
-        header.setGravity(Gravity.CENTER_VERTICAL);
-        header.setPadding(dp(18), dp(18), dp(18), dp(18));
 
-        GradientDrawable headerBg = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                new int[]{NAVY, Color.rgb(17, 55, 103)}
+        header.setOrientation(
+                LinearLayout.HORIZONTAL
         );
-        headerBg.setCornerRadius(dp(24));
-        header.setBackground(headerBg);
 
-        LinearLayout titleBox = new LinearLayout(this);
-        titleBox.setOrientation(LinearLayout.VERTICAL);
-        titleBox.setGravity(Gravity.RIGHT);
+        header.setGravity(
+                Gravity.CENTER_VERTICAL
+        );
 
-        TextView appTitle = text(
+        header.setPadding(
+                dp(18),
+                dp(18),
+                dp(18),
+                dp(18)
+        );
+
+        header.setLayoutDirection(
+                View.LAYOUT_DIRECTION_RTL
+        );
+
+        GradientDrawable headerBackground =
+                new GradientDrawable(
+                        GradientDrawable.Orientation.TL_BR,
+                        new int[]{
+                                NAVY,
+                                Color.rgb(17, 55, 103)
+                        }
+                );
+
+        headerBackground.setCornerRadius(
+                dp(24)
+        );
+
+        header.setBackground(
+                headerBackground
+        );
+
+        // الشعار
+
+        TextView logo = createText(
+                "🎓",
+                32,
+                WHITE,
+                false
+        );
+
+        logo.setGravity(
+                Gravity.CENTER
+        );
+
+        GradientDrawable logoBackground =
+                new GradientDrawable();
+
+        logoBackground.setColor(
+                Color.rgb(35, 76, 125)
+        );
+
+        logoBackground.setCornerRadius(
+                dp(17)
+        );
+
+        logo.setBackground(
+                logoBackground
+        );
+
+        LinearLayout.LayoutParams logoParams =
+                new LinearLayout.LayoutParams(
+                        dp(58),
+                        dp(58)
+                );
+
+        logoParams.setMargins(
+                0,
+                0,
+                dp(12),
+                0
+        );
+
+        header.addView(
+                logo,
+                logoParams
+        );
+
+        // عنوان التطبيق
+
+        LinearLayout titleBox =
+                new LinearLayout(this);
+
+        titleBox.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        titleBox.setGravity(
+                Gravity.RIGHT
+        );
+
+        TextView title = createText(
                 "سجل الدرجات",
                 24,
                 WHITE,
                 true
         );
 
-        TextView schoolYear = text(
+        TextView year = createText(
                 "العام الدراسي 2026 - 2027",
                 13,
                 Color.rgb(205, 220, 240),
                 false
         );
 
-        titleBox.addView(appTitle);
-        titleBox.addView(space(4));
-        titleBox.addView(schoolYear);
+        titleBox.addView(title);
+        titleBox.addView(verticalSpace(4));
+        titleBox.addView(year);
 
         LinearLayout.LayoutParams titleParams =
-                new LinearLayout.LayoutParams(0, -2, 1);
+                new LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1
+                );
 
-        header.addView(titleBox, titleParams);
-
-        TextView logo = text("🎓", 38, WHITE, false);
-        logo.setGravity(Gravity.CENTER);
-
-        LinearLayout.LayoutParams logoParams =
-                new LinearLayout.LayoutParams(dp(58), dp(58));
-        logoParams.setMargins(dp(10), 0, 0, 0);
-
-        header.addView(logo, logoParams);
+        header.addView(
+                titleBox,
+                titleParams
+        );
 
         content.addView(header);
 
-        content.addView(space(18));
+        content.addView(
+                verticalSpace(18)
+        );
 
-        // =========================
+        // =====================================
         // بطاقة الترحيب
-        // =========================
+        // =====================================
 
-        LinearLayout welcome = card();
+        LinearLayout welcomeCard =
+                createCard();
 
-        TextView welcomeTitle = text(
+        TextView welcomeTitle = createText(
                 "مرحبًا بك 👋",
                 20,
                 TEXT,
                 true
         );
 
-        TextView welcomeText = text(
+        TextView welcomeText = createText(
                 "إدارة درجات الطلاب بطريقة سهلة ومنظمة",
                 14,
                 GRAY,
                 false
         );
 
-        welcome.addView(welcomeTitle);
-        welcome.addView(space(5));
-        welcome.addView(welcomeText);
+        welcomeCard.addView(
+                welcomeTitle
+        );
 
-        content.addView(welcome);
+        welcomeCard.addView(
+                verticalSpace(5)
+        );
 
-        content.addView(space(16));
+        welcomeCard.addView(
+                welcomeText
+        );
 
-        // =========================
-        // عنوان الاختصارات
-        // =========================
+        content.addView(
+                welcomeCard
+        );
 
-        TextView quickTitle = text(
+        content.addView(
+                verticalSpace(18)
+        );
+
+        // =====================================
+        // عنوان الوصول السريع
+        // =====================================
+
+        TextView quickTitle = createText(
                 "الوصول السريع",
                 18,
                 TEXT,
                 true
         );
 
-        content.addView(quickTitle);
-        content.addView(space(10));
+        content.addView(
+                quickTitle
+        );
 
-        // =========================
-        // الصف الأول
-        // =========================
+        content.addView(
+                verticalSpace(10)
+        );
 
-        LinearLayout row1 = new LinearLayout(this);
-        row1.setOrientation(LinearLayout.HORIZONTAL);
-        row1.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        // =====================================
+        // بطاقات الطلاب والدرجات
+        // =====================================
 
-        row1.addView(
-                dashboardCard(
+        LinearLayout row1 =
+                new LinearLayout(this);
+
+        row1.setOrientation(
+                LinearLayout.HORIZONTAL
+        );
+
+        row1.setLayoutDirection(
+                View.LAYOUT_DIRECTION_RTL
+        );
+
+        TextView students =
+                createDashboardCard(
                         "👨‍🎓",
                         "الطلاب",
                         "إدارة الطلاب والشعب",
-                        BLUE,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Toast.makeText(
-                                        MainActivity.this,
-                                        "قسم الطلاب - سيتم تطويره في القسم القادم",
-                                        Toast.LENGTH_SHORT
-                                ).show();
-                            }
-                        }
-                ),
-                weightParams()
+                        BLUE
+                );
+
+        students.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showMessage(
+                                "قسم الطلاب سيتم تطويره لاحقًا"
+                        );
+                    }
+                }
         );
 
-        row1.addView(spaceHorizontal(10));
+        row1.addView(
+                students,
+                cardParams()
+        );
 
         row1.addView(
-                dashboardCard(
+                horizontalSpace(10)
+        );
+
+        TextView grades =
+                createDashboardCard(
                         "📝",
                         "الدرجات",
                         "إدخال وتعديل الدرجات",
-                        GREEN,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Toast.makeText(
-                                        MainActivity.this,
-                                        "قسم الدرجات - سيتم تطويره لاحقًا",
-                                        Toast.LENGTH_SHORT
-                                ).show();
-                            }
-                        }
-                ),
-                weightParams()
+                        GREEN
+                );
+
+        grades.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showMessage(
+                                "قسم الدرجات سيتم تطويره لاحقًا"
+                        );
+                    }
+                }
+        );
+
+        row1.addView(
+                grades,
+                cardParams()
         );
 
         content.addView(row1);
 
-        content.addView(space(10));
+        content.addView(
+                verticalSpace(10)
+        );
 
-        // =========================
-        // الصف الثاني
-        // =========================
+        // =====================================
+        // بطاقات التقارير والنتائج
+        // =====================================
 
-        LinearLayout row2 = new LinearLayout(this);
-        row2.setOrientation(LinearLayout.HORIZONTAL);
-        row2.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        LinearLayout row2 =
+                new LinearLayout(this);
 
-        row2.addView(
-                dashboardCard(
+        row2.setOrientation(
+                LinearLayout.HORIZONTAL
+        );
+
+        row2.setLayoutDirection(
+                View.LAYOUT_DIRECTION_RTL
+        );
+
+        TextView reports =
+                createDashboardCard(
                         "📊",
                         "التقارير",
                         "عرض وطباعة النتائج",
-                        GOLD,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Toast.makeText(
-                                        MainActivity.this,
-                                        "قسم التقارير - سيتم تطويره لاحقًا",
-                                        Toast.LENGTH_SHORT
-                                ).show();
-                            }
-                        }
-                ),
-                weightParams()
+                        GOLD
+                );
+
+        reports.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showMessage(
+                                "قسم التقارير سيتم تطويره لاحقًا"
+                        );
+                    }
+                }
         );
 
-        row2.addView(spaceHorizontal(10));
+        row2.addView(
+                reports,
+                cardParams()
+        );
 
         row2.addView(
-                dashboardCard(
+                horizontalSpace(10)
+        );
+
+        TextView results =
+                createDashboardCard(
                         "🏆",
                         "النتائج",
                         "المتفوقون والنتائج",
-                        Color.rgb(128, 83, 190),
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Toast.makeText(
-                                        MainActivity.this,
-                                        "قسم النتائج - سيتم تطويره لاحقًا",
-                                        Toast.LENGTH_SHORT
-                                ).show();
-                            }
-                        }
-                ),
-                weightParams()
+                        PURPLE
+                );
+
+        results.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showMessage(
+                                "قسم النتائج سيتم تطويره لاحقًا"
+                        );
+                    }
+                }
+        );
+
+        row2.addView(
+                results,
+                cardParams()
         );
 
         content.addView(row2);
 
-        content.addView(space(16));
+        content.addView(
+                verticalSpace(18)
+        );
 
-        // =========================
+        // =====================================
+        // هنا ينتهي القسم الأول
+        // =====================================
+            // =====================================
         // آخر العمليات
-        // =========================
+        // =====================================
 
-        TextView activityTitle = text(
+        TextView activityTitle = createText(
                 "آخر العمليات",
                 18,
                 TEXT,
                 true
         );
 
-        content.addView(activityTitle);
-        content.addView(space(10));
+        content.addView(
+                activityTitle
+        );
 
-        LinearLayout activityCard = card();
+        content.addView(
+                verticalSpace(10)
+        );
+
+        LinearLayout activityCard =
+                createCard();
 
         addActivity(
                 activityCard,
                 "➕",
                 "إضافة طالب جديد",
                 "جاهز لإضافة الطلاب",
-                "منذ لحظات"
+                "الآن"
         );
 
-        addDivider(activityCard);
+        addDivider(
+                activityCard
+        );
 
         addActivity(
                 activityCard,
                 "📝",
                 "إدخال درجات الفصل الأول",
                 "سجل الدرجات",
-                "لم يبدأ بعد"
+                "قريبًا"
         );
 
-        addDivider(activityCard);
+        addDivider(
+                activityCard
+        );
 
         addActivity(
                 activityCard,
                 "📊",
                 "إعداد التقارير",
                 "تقارير الطلاب",
-                "متاح لاحقًا"
+                "قريبًا"
         );
 
-        content.addView(activityCard);
+        content.addView(
+                activityCard
+        );
 
-        content.addView(space(16));
+        content.addView(
+                verticalSpace(18)
+        );
 
-        // =========================
-        // الإعدادات
-        // =========================
+        // =====================================
+        // زر الإعدادات
+        // =====================================
 
-        TextView settings = button(
-                "⚙️   الإعدادات والنسخ الاحتياطي",
+        TextView settingsButton =
+                createButton(
+                        "⚙️   الإعدادات والنسخ الاحتياطي",
+                        NAVY
+                );
+
+        settingsButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        showMessage(
+                                "الإعدادات سيتم تطويرها لاحقًا"
+                        );
+                    }
+                }
+        );
+
+        content.addView(
+                settingsButton
+        );
+
+        content.addView(
+                verticalSpace(20)
+        );
+
+        // =====================================
+        // شريط التنقل السفلي
+        // =====================================
+
+        LinearLayout navigation =
+                new LinearLayout(this);
+
+        navigation.setOrientation(
+                LinearLayout.HORIZONTAL
+        );
+
+        navigation.setGravity(
+                Gravity.CENTER
+        );
+
+        navigation.setPadding(
+                dp(8),
+                dp(8),
+                dp(8),
+                dp(8)
+        );
+
+        navigation.setLayoutDirection(
+                View.LAYOUT_DIRECTION_RTL
+        );
+
+        GradientDrawable navigationBackground =
+                new GradientDrawable();
+
+        navigationBackground.setColor(
                 NAVY
         );
 
-        settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(
-                        MainActivity.this,
-                        "الإعدادات سيتم تطويرها لاحقًا",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
-        });
+        navigationBackground.setCornerRadius(
+                dp(22)
+        );
 
-        content.addView(settings);
-
-        content.addView(space(20));
-
-        // =========================
-        // شريط التنقل السفلي
-        // =========================
-
-        LinearLayout navigation = new LinearLayout(this);
-        navigation.setOrientation(LinearLayout.HORIZONTAL);
-        navigation.setGravity(Gravity.CENTER);
-        navigation.setPadding(dp(8), dp(8), dp(8), dp(8));
-
-        GradientDrawable navBg = new GradientDrawable();
-        navBg.setColor(NAVY);
-        navBg.setCornerRadius(dp(22));
-        navigation.setBackground(navBg);
-
-        navigation.addView(
-                navItem("⌂", "الرئيسية", true),
-                weightParams()
+        navigation.setBackground(
+                navigationBackground
         );
 
         navigation.addView(
-                navItem("👥", "الطلاب", false),
-                weightParams()
+                createNavigationItem(
+                        "⌂",
+                        "الرئيسية",
+                        true
+                ),
+                navigationParams()
         );
 
         navigation.addView(
-                navItem("📝", "الدرجات", false),
-                weightParams()
+                createNavigationItem(
+                        "👥",
+                        "الطلاب",
+                        false
+                ),
+                navigationParams()
         );
 
         navigation.addView(
-                navItem("📊", "التقارير", false),
-                weightParams()
+                createNavigationItem(
+                        "📝",
+                        "الدرجات",
+                        false
+                ),
+                navigationParams()
         );
 
         navigation.addView(
-                navItem("•••", "المزيد", false),
-                weightParams()
+                createNavigationItem(
+                        "📊",
+                        "التقارير",
+                        false
+                ),
+                navigationParams()
         );
 
-        content.addView(navigation);
+        navigation.addView(
+                createNavigationItem(
+                        "•••",
+                        "المزيد",
+                        false
+                ),
+                navigationParams()
+        );
 
-        scrollView.addView(content);
+        content.addView(
+                navigation
+        );
+
+        // =====================================
+        // إضافة المحتوى
+        // =====================================
+
+        scrollView.addView(
+                content
+        );
 
         root.addView(
                 scrollView,
-                new LinearLayout.LayoutParams(-1, 0, 1)
+                new LinearLayout.LayoutParams(
+                        -1,
+                        0,
+                        1
+                )
         );
 
-        setContentView(root);
+        setContentView(
+                root
+        );
+
+        // =====================================
+        // هنا ينتهي القسم الثاني
+        // =====================================
+            // =====================================
+        // نهاية القسم الثالث
+        // =====================================
+
     }
 
-    // ==========================================
+    // =====================================================
     // إنشاء بطاقة لوحة التحكم
-    // ==========================================
+    // =====================================================
 
-    private LinearLayout dashboardCard(
+    private TextView createDashboardCard(
             String icon,
             String title,
             String subtitle,
-            int accent,
-            View.OnClickListener listener
+            int accentColor
     ) {
 
-        LinearLayout card = new LinearLayout(this);
-        card.setOrientation(LinearLayout.VERTICAL);
-        card.setGravity(Gravity.RIGHT);
-        card.setPadding(dp(15), dp(15), dp(15), dp(15));
-        card.setClickable(true);
-        card.setFocusable(true);
+        TextView view = new TextView(this);
 
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(WHITE);
-        bg.setCornerRadius(dp(20));
-        bg.setStroke(dp(1), Color.rgb(225, 231, 240));
+        String content =
+                icon +
+                "\n\n" +
+                title +
+                "\n" +
+                subtitle;
 
-        card.setBackground(bg);
-        card.setElevation(dp(3));
+        view.setText(content);
 
-        TextView iconView = text(
-                icon,
-                30,
-                accent,
-                false
+        view.setTextColor(TEXT);
+
+        view.setTextSize(15);
+
+        view.setGravity(
+                Gravity.RIGHT |
+                Gravity.CENTER_VERTICAL
         );
 
-        iconView.setGravity(Gravity.CENTER);
-
-        LinearLayout.LayoutParams iconParams =
-                new LinearLayout.LayoutParams(dp(48), dp(48));
-
-        iconParams.gravity = Gravity.RIGHT;
-
-        GradientDrawable iconBg = new GradientDrawable();
-        iconBg.setColor(lighten(accent));
-        iconBg.setCornerRadius(dp(15));
-
-        iconView.setBackground(iconBg);
-
-        card.addView(iconView, iconParams);
-
-        card.addView(space(10));
-
-        TextView titleView = text(
-                title,
-                17,
-                TEXT,
-                true
+        view.setPadding(
+                dp(15),
+                dp(15),
+                dp(15),
+                dp(15)
         );
 
-        card.addView(titleView);
-
-        card.addView(space(3));
-
-        TextView subtitleView = text(
-                subtitle,
-                11,
-                GRAY,
-                false
+        view.setTypeface(
+                Typeface.create(
+                        "sans-serif",
+                        Typeface.NORMAL
+                )
         );
 
-        card.addView(subtitleView);
+        GradientDrawable background =
+                new GradientDrawable();
 
-        card.setOnClickListener(listener);
+        background.setColor(
+                WHITE
+        );
+
+        background.setCornerRadius(
+                dp(20)
+        );
+
+        background.setStroke(
+                dp(1),
+                Color.rgb(225, 231, 240)
+        );
+
+        view.setBackground(
+                background
+        );
+
+        view.setElevation(
+                dp(3)
+        );
+
+        return view;
+    }
+
+    // =====================================================
+    // إنشاء بطاقة عادية
+    // =====================================================
+
+    private LinearLayout createCard() {
+
+        LinearLayout card =
+                new LinearLayout(this);
+
+        card.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        card.setPadding(
+                dp(18),
+                dp(18),
+                dp(18),
+                dp(18)
+        );
+
+        card.setLayoutDirection(
+                View.LAYOUT_DIRECTION_RTL
+        );
+
+        GradientDrawable background =
+                new GradientDrawable();
+
+        background.setColor(
+                WHITE
+        );
+
+        background.setCornerRadius(
+                dp(20)
+        );
+
+        background.setStroke(
+                dp(1),
+                Color.rgb(225, 231, 240)
+        );
+
+        card.setBackground(
+                background
+        );
+
+        card.setElevation(
+                dp(2)
+        );
 
         return card;
     }
 
-    // ==========================================
-    // بطاقة عامة
-    // ==========================================
-
-    private LinearLayout card() {
-
-        LinearLayout card = new LinearLayout(this);
-        card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(18), dp(18), dp(18), dp(18));
-
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(WHITE);
-        bg.setCornerRadius(dp(20));
-        bg.setStroke(dp(1), Color.rgb(225, 231, 240));
-
-        card.setBackground(bg);
-        card.setElevation(dp(2));
-
-        return card;
-    }
-
-    // ==========================================
-    // العمليات الأخيرة
-    // ==========================================
+    // =====================================================
+    // إضافة عملية إلى قائمة آخر العمليات
+    // =====================================================
 
     private void addActivity(
             LinearLayout parent,
@@ -492,84 +767,158 @@ public class MainActivity extends AppCompatActivity {
             String time
     ) {
 
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        LinearLayout row =
+                new LinearLayout(this);
 
-        TextView iconView = text(
-                icon,
-                22,
-                BLUE,
-                false
+        row.setOrientation(
+                LinearLayout.HORIZONTAL
         );
 
-        iconView.setGravity(Gravity.CENTER);
+        row.setGravity(
+                Gravity.CENTER_VERTICAL
+        );
 
-        GradientDrawable iconBg = new GradientDrawable();
-        iconBg.setColor(LIGHT_BLUE);
-        iconBg.setCornerRadius(dp(13));
+        row.setLayoutDirection(
+                View.LAYOUT_DIRECTION_RTL
+        );
 
-        iconView.setBackground(iconBg);
+        // الأيقونة
+
+        TextView iconView =
+                createText(
+                        icon,
+                        20,
+                        BLUE,
+                        false
+                );
+
+        iconView.setGravity(
+                Gravity.CENTER
+        );
+
+        GradientDrawable iconBackground =
+                new GradientDrawable();
+
+        iconBackground.setColor(
+                Color.rgb(235, 243, 255)
+        );
+
+        iconBackground.setCornerRadius(
+                dp(13)
+        );
+
+        iconView.setBackground(
+                iconBackground
+        );
 
         row.addView(
                 iconView,
-                new LinearLayout.LayoutParams(dp(45), dp(45))
+                new LinearLayout.LayoutParams(
+                        dp(45),
+                        dp(45)
+                )
         );
 
-        LinearLayout details = new LinearLayout(this);
-        details.setOrientation(LinearLayout.VERTICAL);
-        details.setGravity(Gravity.RIGHT);
+        // التفاصيل
 
-        TextView titleView = text(
-                title,
-                14,
-                TEXT,
-                true
+        LinearLayout details =
+                new LinearLayout(this);
+
+        details.setOrientation(
+                LinearLayout.VERTICAL
         );
 
-        TextView subtitleView = text(
-                subtitle,
-                11,
-                GRAY,
-                false
+        details.setGravity(
+                Gravity.RIGHT
         );
 
-        details.addView(titleView);
-        details.addView(space(3));
-        details.addView(subtitleView);
+        TextView titleView =
+                createText(
+                        title,
+                        14,
+                        TEXT,
+                        true
+                );
+
+        TextView subtitleView =
+                createText(
+                        subtitle,
+                        11,
+                        GRAY,
+                        false
+                );
+
+        details.addView(
+                titleView
+        );
+
+        details.addView(
+                verticalSpace(3)
+        );
+
+        details.addView(
+                subtitleView
+        );
 
         LinearLayout.LayoutParams detailParams =
-                new LinearLayout.LayoutParams(0, -2, 1);
+                new LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1
+                );
 
-        detailParams.setMargins(dp(10), 0, 0, 0);
-
-        row.addView(details, detailParams);
-
-        TextView timeView = text(
-                time,
-                10,
-                GRAY,
-                false
+        detailParams.setMargins(
+                dp(10),
+                0,
+                0,
+                0
         );
 
-        row.addView(timeView);
+        row.addView(
+                details,
+                detailParams
+        );
 
-        parent.addView(row);
+        // الوقت
+
+        TextView timeView =
+                createText(
+                        time,
+                        10,
+                        GRAY,
+                        false
+                );
+
+        row.addView(
+                timeView
+        );
+
+        parent.addView(
+                row
+        );
     }
 
-    // ==========================================
-    // فاصل
-    // ==========================================
+    // =====================================================
+    // إنشاء فاصل
+    // =====================================================
 
-    private void addDivider(LinearLayout parent) {
+    private void addDivider(
+            LinearLayout parent
+    ) {
 
-        View divider = new View(this);
+        View divider =
+                new View(this);
 
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(Color.rgb(235, 238, 243));
+        GradientDrawable background =
+                new GradientDrawable();
 
-        divider.setBackground(bg);
+        background.setColor(
+                Color.rgb(235, 238, 243)
+        );
+
+        divider.setBackground(
+                background
+        );
 
         LinearLayout.LayoutParams params =
                 new LinearLayout.LayoutParams(
@@ -577,96 +926,177 @@ public class MainActivity extends AppCompatActivity {
                         dp(1)
                 );
 
-        params.setMargins(0, dp(12), 0, dp(12));
-
-        parent.addView(divider, params);
-    }
-
-    // ==========================================
-    // زر
-    // ==========================================
-
-    private TextView button(String title, int color) {
-
-        TextView view = text(
-                title,
-                15,
-                WHITE,
-                true
+        params.setMargins(
+                0,
+                dp(12),
+                0,
+                dp(12)
         );
 
-        view.setGravity(Gravity.CENTER);
-        view.setPadding(dp(10), dp(14), dp(10), dp(14));
-
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(color);
-        bg.setCornerRadius(dp(16));
-
-        view.setBackground(bg);
-        view.setElevation(dp(3));
-
-        return view;
+        parent.addView(
+                divider,
+                params
+        );
     }
 
-    // ==========================================
-    // شريط التنقل
-    // ==========================================
+    // =====================================================
+    // إنشاء زر
+    // =====================================================
 
-    private LinearLayout navItem(
+    private TextView createButton(
+            String title,
+            int color
+    ) {
+
+        TextView button =
+                createText(
+                        title,
+                        15,
+                        WHITE,
+                        true
+                );
+
+        button.setGravity(
+                Gravity.CENTER
+        );
+
+        button.setPadding(
+                dp(10),
+                dp(14),
+                dp(10),
+                dp(14)
+        );
+
+        GradientDrawable background =
+                new GradientDrawable();
+
+        background.setColor(
+                color
+        );
+
+        background.setCornerRadius(
+                dp(16)
+        );
+
+        button.setBackground(
+                background
+        );
+
+        button.setElevation(
+                dp(3)
+        );
+
+        return button;
+    }
+
+    // =====================================================
+    // عنصر شريط التنقل
+    // =====================================================
+
+    private LinearLayout createNavigationItem(
             String icon,
             String title,
             boolean selected
     ) {
 
-        LinearLayout item = new LinearLayout(this);
-        item.setOrientation(LinearLayout.VERTICAL);
-        item.setGravity(Gravity.CENTER);
+        LinearLayout item =
+                new LinearLayout(this);
 
-        TextView iconView = text(
-                icon,
-                19,
-                selected ? Color.WHITE : Color.rgb(165, 185, 210),
-                false
+        item.setOrientation(
+                LinearLayout.VERTICAL
         );
 
-        iconView.setGravity(Gravity.CENTER);
-
-        TextView titleView = text(
-                title,
-                10,
-                selected ? Color.WHITE : Color.rgb(165, 185, 210),
-                selected
+        item.setGravity(
+                Gravity.CENTER
         );
 
-        titleView.setGravity(Gravity.CENTER);
+        TextView iconView =
+                createText(
+                        icon,
+                        19,
+                        selected
+                                ? WHITE
+                                : Color.rgb(
+                                        165,
+                                        185,
+                                        210
+                                ),
+                        false
+                );
 
-        item.addView(iconView);
-        item.addView(space(2));
-        item.addView(titleView);
+        iconView.setGravity(
+                Gravity.CENTER
+        );
+
+        TextView titleView =
+                createText(
+                        title,
+                        10,
+                        selected
+                                ? WHITE
+                                : Color.rgb(
+                                        165,
+                                        185,
+                                        210
+                                ),
+                        selected
+                );
+
+        titleView.setGravity(
+                Gravity.CENTER
+        );
+
+        item.addView(
+                iconView
+        );
+
+        item.addView(
+                verticalSpace(2)
+        );
+
+        item.addView(
+                titleView
+        );
 
         return item;
     }
 
-    // ==========================================
-    // أدوات
-    // ==========================================
+    // =====================================================
+    // إنشاء TextView
+    // =====================================================
 
-    private TextView text(
+    private TextView createText(
             String value,
             float size,
             int color,
             boolean bold
     ) {
 
-        TextView view = new TextView(this);
+        TextView view =
+                new TextView(this);
 
-        view.setText(value);
-        view.setTextSize(size);
-        view.setTextColor(color);
-        view.setGravity(Gravity.RIGHT);
-        view.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        view.setText(
+                value
+        );
+
+        view.setTextSize(
+                size
+        );
+
+        view.setTextColor(
+                color
+        );
+
+        view.setGravity(
+                Gravity.RIGHT
+        );
+
+        view.setLayoutDirection(
+                View.LAYOUT_DIRECTION_RTL
+        );
 
         if (bold) {
+
             view.setTypeface(
                     Typeface.create(
                             "sans-serif",
@@ -678,18 +1108,42 @@ public class MainActivity extends AppCompatActivity {
         return view;
     }
 
-    private LinearLayout.LayoutParams weightParams() {
+    // =====================================================
+    // حجم بطاقات لوحة التحكم
+    // =====================================================
+
+    private LinearLayout.LayoutParams cardParams() {
 
         return new LinearLayout.LayoutParams(
                 0,
-                -2,
+                dp(150),
                 1
         );
     }
 
-    private View space(int height) {
+    // =====================================================
+    // حجم عناصر التنقل
+    // =====================================================
 
-        View view = new View(this);
+    private LinearLayout.LayoutParams navigationParams() {
+
+        return new LinearLayout.LayoutParams(
+                0,
+                dp(58),
+                1
+        );
+    }
+
+    // =====================================================
+    // مسافة عمودية
+    // =====================================================
+
+    private View verticalSpace(
+            int height
+    ) {
+
+        View view =
+                new View(this);
 
         view.setLayoutParams(
                 new LinearLayout.LayoutParams(
@@ -701,9 +1155,16 @@ public class MainActivity extends AppCompatActivity {
         return view;
     }
 
-    private View spaceHorizontal(int width) {
+    // =====================================================
+    // مسافة أفقية
+    // =====================================================
 
-        View view = new View(this);
+    private View horizontalSpace(
+            int width
+    ) {
+
+        View view =
+                new View(this);
 
         view.setLayoutParams(
                 new LinearLayout.LayoutParams(
@@ -715,7 +1176,13 @@ public class MainActivity extends AppCompatActivity {
         return view;
     }
 
-    private int dp(int value) {
+    // =====================================================
+    // تحويل dp إلى pixels
+    // =====================================================
+
+    private int dp(
+            int value
+    ) {
 
         return (int) (
                 value *
@@ -725,16 +1192,18 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    private int lighten(int color) {
+    // =====================================================
+    // رسالة مؤقتة
+    // =====================================================
 
-        int r = Color.red(color);
-        int g = Color.green(color);
-        int b = Color.blue(color);
+    private void showMessage(
+            String message
+    ) {
 
-        r = (r + 255) / 2;
-        g = (g + 255) / 2;
-        b = (b + 255) / 2;
-
-        return Color.rgb(r, g, b);
+        Toast.makeText(
+                this,
+                message,
+                Toast.LENGTH_SHORT
+        ).show();
     }
 }
