@@ -236,76 +236,293 @@ public class MainActivity extends Activity {
     }
 
     private void showHome() {
-        prepareRoot();
 
-        root.addView(
-                title("سجل درجات الاجتماعيات")
-        );
+    prepareRoot();
 
-        root.addView(
-                info("الأستاذ أمير محمد")
-        );
+    // =========================
+    // الرأس الرئيسي
+    // =========================
 
-        root.addView(
-                info("نظام إدارة درجات الطلاب")
-        );
+    LinearLayout header = new LinearLayout(this);
 
-        addSpace(root, 8);
+    header.setOrientation(LinearLayout.VERTICAL);
+    header.setGravity(Gravity.CENTER);
+    header.setPadding(
+            dp(20),
+            dp(28),
+            dp(20),
+            dp(28)
+    );
 
-        Button students =
-                button("👨‍🎓 إدارة الطلاب");
+    header.setBackgroundColor(
+            Color.rgb(25, 88, 140)
+    );
 
-        Button classesButton =
-                button("🏫 الشعب الدراسية");
+    TextView appName = new TextView(this);
 
-        Button grades =
-                button("📊 إدخال الدرجات");
+    appName.setText("📚 سجل درجات الاجتماعيات");
+    appName.setTextSize(26);
+    appName.setTextColor(Color.WHITE);
+    appName.setGravity(Gravity.CENTER);
+    appName.setTypeface(null, 1);
 
-        Button records =
-                button("📋 سجل الدرجات والتقارير");
+    header.addView(appName);
 
-        Button backup =
-                button("💾 النسخ الاحتياطي والمشاركة");
+    TextView teacher = new TextView(this);
 
-        root.addView(students);
-        root.addView(classesButton);
-        root.addView(grades);
-        root.addView(records);
-        root.addView(backup);
+    teacher.setText("الأستاذ أمير محمد");
+    teacher.setTextSize(18);
+    teacher.setTextColor(Color.WHITE);
+    teacher.setGravity(Gravity.CENTER);
+    teacher.setPadding(
+            0,
+            dp(8),
+            0,
+            0
+    );
 
-        students.setOnClickListener(
-                v -> showStudents()
-        );
+    header.addView(teacher);
 
-        classesButton.setOnClickListener(
-                v -> showClasses()
-        );
+    TextView subtitle = new TextView(this);
 
-        grades.setOnClickListener(
-                v -> showGrades()
-        );
+    subtitle.setText("نظام احترافي لإدارة الطلاب والدرجات");
+    subtitle.setTextSize(15);
+    subtitle.setTextColor(
+            Color.rgb(225, 240, 250)
+    );
+    subtitle.setGravity(Gravity.CENTER);
 
-        records.setOnClickListener(
-                v -> showRecords()
-        );
+    header.addView(subtitle);
 
-        backup.setOnClickListener(
-                v -> shareBackup()
-        );
+    root.addView(
+            header,
+            new LinearLayout.LayoutParams(
+                    -1,
+                    -2
+            )
+    );
 
-        TextView count =
-                info(
-                        "عدد الطلاب: "
-                                + students.length()
-                                + "\nعدد الشعب: "
-                                + classes.length()
-                );
 
-        count.setTextSize(16);
+    // =========================
+    // الإحصائيات
+    // =========================
 
-        root.addView(count);
-    }
+    LinearLayout stats = new LinearLayout(this);
 
+    stats.setOrientation(
+            LinearLayout.HORIZONTAL
+    );
+
+    stats.setGravity(Gravity.CENTER);
+    stats.setPadding(
+            dp(10),
+            dp(14),
+            dp(10),
+            dp(8)
+    );
+
+    TextView studentsCount = new TextView(this);
+
+    studentsCount.setText(
+            "👨‍🎓\n"
+                    + students.length()
+                    + "\nطلاب"
+    );
+
+    studentsCount.setTextSize(17);
+    studentsCount.setTextColor(DARK);
+    studentsCount.setGravity(Gravity.CENTER);
+    studentsCount.setPadding(
+            dp(8),
+            dp(12),
+            dp(8),
+            dp(12)
+    );
+    studentsCount.setBackgroundColor(
+            Color.WHITE
+    );
+
+    TextView classesCount = new TextView(this);
+
+    classesCount.setText(
+            "🏫\n"
+                    + classes.length()
+                    + "\nشعب"
+    );
+
+    classesCount.setTextSize(17);
+    classesCount.setTextColor(DARK);
+    classesCount.setGravity(Gravity.CENTER);
+    classesCount.setPadding(
+            dp(8),
+            dp(12),
+            dp(8),
+            dp(12)
+    );
+    classesCount.setBackgroundColor(
+            Color.WHITE
+    );
+
+    LinearLayout.LayoutParams statParams =
+            new LinearLayout.LayoutParams(
+                    0,
+                    dp(100),
+                    1
+            );
+
+    statParams.setMargins(
+            dp(6),
+            0,
+            dp(6),
+            0
+    );
+
+    stats.addView(
+            studentsCount,
+            statParams
+    );
+
+    stats.addView(
+            classesCount,
+            statParams
+    );
+
+    root.addView(stats);
+
+
+    // =========================
+    // عنوان لوحة التحكم
+    // =========================
+
+    TextView dashboard = new TextView(this);
+
+    dashboard.setText(
+            "لوحة التحكم الرئيسية"
+    );
+
+    dashboard.setTextSize(22);
+    dashboard.setTextColor(DARK);
+    dashboard.setGravity(Gravity.RIGHT);
+    dashboard.setTypeface(null, 1);
+
+    dashboard.setPadding(
+            dp(18),
+            dp(12),
+            dp(18),
+            dp(8)
+    );
+
+    root.addView(dashboard);
+
+
+    // =========================
+    // إدارة الطلاب
+    // =========================
+
+    Button studentsButton =
+            button("👨‍🎓  إدارة الطلاب");
+
+    studentsButton.setTextSize(18);
+
+    root.addView(studentsButton);
+
+    studentsButton.setOnClickListener(
+            v -> showStudents()
+    );
+
+
+    // =========================
+    // الشعب الدراسية
+    // =========================
+
+    Button classesButton =
+            button("🏫  إدارة الشعب الدراسية");
+
+    classesButton.setTextSize(18);
+
+    root.addView(classesButton);
+
+    classesButton.setOnClickListener(
+            v -> showClasses()
+    );
+
+
+    // =========================
+    // إدخال الدرجات
+    // =========================
+
+    Button gradesButton =
+            button("📝  إدخال وتعديل الدرجات");
+
+    gradesButton.setTextSize(18);
+
+    root.addView(gradesButton);
+
+    gradesButton.setOnClickListener(
+            v -> showGrades()
+    );
+
+
+    // =========================
+    // التقارير
+    // =========================
+
+    Button recordsButton =
+            button("📊  سجل الدرجات والتقارير");
+
+    recordsButton.setTextSize(18);
+
+    root.addView(recordsButton);
+
+    recordsButton.setOnClickListener(
+            v -> showRecords()
+    );
+
+
+    // =========================
+    // النسخ الاحتياطي
+    // =========================
+
+    Button backupButton =
+            button("💾  النسخ الاحتياطي والمشاركة");
+
+    backupButton.setTextSize(18);
+
+    root.addView(backupButton);
+
+    backupButton.setOnClickListener(
+            v -> shareBackup()
+    );
+
+
+    // =========================
+    // معلومات النظام
+    // =========================
+
+    addSpace(root, 10);
+
+    TextView footer = new TextView(this);
+
+    footer.setText(
+            "نظام سجل درجات الاجتماعيات\n"
+                    + "إدارة سهلة • تقارير واضحة • حفظ تلقائي"
+    );
+
+    footer.setTextSize(14);
+    footer.setTextColor(
+            Color.rgb(100, 100, 100)
+    );
+    footer.setGravity(Gravity.CENTER);
+
+    footer.setPadding(
+            dp(12),
+            dp(12),
+            dp(12),
+            dp(20)
+    );
+
+    root.addView(footer);
+}
     private void showStudents() {
         prepareRoot();
 
