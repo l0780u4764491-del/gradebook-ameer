@@ -34,21 +34,22 @@ public class MainActivity extends Activity {
     private static final String KEY_STUDENTS = "students";
     private static final String KEY_CLASSES = "classes";
 
+    private static final int BLUE = Color.rgb(25, 118, 210);
+    private static final int DARK_BLUE = Color.rgb(13, 71, 161);
+    private static final int LIGHT = Color.rgb(245, 247, 250);
+    private static final int WHITE = Color.WHITE;
+    private static final int DARK = Color.rgb(35, 40, 45);
+    private static final int GRAY = Color.rgb(100, 110, 120);
+    private static final int GREEN = Color.rgb(46, 125, 50);
+    private static final int RED = Color.rgb(198, 40, 40);
+    private static final int ORANGE = Color.rgb(239, 108, 0);
+
     private SharedPreferences prefs;
+
     private JSONArray students = new JSONArray();
     private JSONArray classes = new JSONArray();
 
     private LinearLayout root;
-
-    private final int BLUE = Color.rgb(25, 95, 150);
-    private final int DARK_BLUE = Color.rgb(12, 58, 95);
-    private final int LIGHT = Color.rgb(246, 248, 251);
-    private final int WHITE = Color.WHITE;
-    private final int DARK = Color.rgb(35, 40, 45);
-    private final int GRAY = Color.rgb(105, 110, 118);
-    private final int GREEN = Color.rgb(40, 145, 80);
-    private final int RED = Color.rgb(190, 50, 50);
-    private final int ORANGE = Color.rgb(220, 130, 25);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,31 +58,22 @@ public class MainActivity extends Activity {
         getWindow().setStatusBarColor(DARK_BLUE);
         getWindow().setNavigationBarColor(Color.BLACK);
 
-        prefs = getSharedPreferences(
-                PREFS,
-                MODE_PRIVATE
-        );
+        prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
 
         loadData();
-
         showHome();
     }
 
     private void loadData() {
         try {
-            students = new JSONArray(
-                    prefs.getString(
-                            KEY_STUDENTS,
-                            "[]"
-                    )
-            );
+            String studentsText =
+                    prefs.getString(KEY_STUDENTS, "[]");
 
-            classes = new JSONArray(
-                    prefs.getString(
-                            KEY_CLASSES,
-                            "[]"
-                    )
-            );
+            String classesText =
+                    prefs.getString(KEY_CLASSES, "[]");
+
+            students = new JSONArray(studentsText);
+            classes = new JSONArray(classesText);
 
         } catch (Exception e) {
             students = new JSONArray();
@@ -104,690 +96,617 @@ public class MainActivity extends Activity {
 
     private int dp(int value) {
         return (int) (
-                value *
-                        getResources()
-                                .getDisplayMetrics()
-                                .density
-                        + 0.5f
+                value * getResources()
+                        .getDisplayMetrics()
+                        .density
         );
     }
 
     private GradientDrawable rounded(
             int color,
-            int radius
+            float radius
     ) {
-        GradientDrawable d =
+        GradientDrawable drawable =
                 new GradientDrawable();
 
-        d.setColor(color);
-        d.setCornerRadius(dp(radius));
+        drawable.setColor(color);
+        drawable.setCornerRadius(dp((int) radius));
 
-        return d;
+        return drawable;
     }
 
     private GradientDrawable bordered(
-            int color,
-            int borderColor
+            int background,
+            int border,
+            float radius
     ) {
-        GradientDrawable d =
-                rounded(color, 12);
+        GradientDrawable drawable =
+                rounded(background, radius);
 
-        d.setStroke(
+        drawable.setStroke(
                 dp(1),
-                borderColor
+                border
         );
 
-        return d;
+        return drawable;
     }
 
     private TextView text(
             String value,
-            float size,
-            int color,
-            boolean bold
+            int size,
+            int color
     ) {
-        TextView t =
+        TextView view =
                 new TextView(this);
 
-        t.setText(value);
-        t.setTextSize(size);
-        t.setTextColor(color);
+        view.setText(value);
+        view.setTextSize(size);
+        view.setTextColor(color);
 
-        t.setTypeface(
-                Typeface.DEFAULT,
-                bold
-                        ? Typeface.BOLD
-                        : Typeface.NORMAL
+        view.setGravity(
+                Gravity.RIGHT | Gravity.CENTER_VERTICAL
         );
 
-        t.setGravity(
-                Gravity.CENTER
-        );
-
-        t.setPadding(
-                dp(10),
-                dp(8),
-                dp(10),
-                dp(8)
-        );
-
-        t.setLayoutDirection(
-                View.LAYOUT_DIRECTION_RTL
-        );
-
-        return t;
+        return view;
     }
 
-    private TextView title(
-            String value
-    ) {
-        TextView t =
+    private TextView title(String value) {
+        TextView view =
                 text(
                         value,
-                        27,
-                        WHITE,
-                        true
+                        23,
+                        DARK
                 );
 
-        t.setPadding(
-                dp(12),
-                dp(18),
-                dp(12),
-                dp(18)
-        );
-
-        t.setBackgroundColor(
-                BLUE
-        );
-
-        return t;
-    }
-
-    private Button button(
-            String value
-    ) {
-        Button b =
-                new Button(this);
-
-        b.setText(value);
-        b.setTextSize(18);
-        b.setTextColor(WHITE);
-        b.setAllCaps(false);
-
-        b.setGravity(
-                Gravity.CENTER
-        );
-
-        b.setTypeface(
+        view.setTypeface(
                 Typeface.DEFAULT,
                 Typeface.BOLD
         );
 
-        b.setBackground(
-                rounded(
-                        BLUE,
-                        12
-                )
-        );
-
-        LinearLayout.LayoutParams p =
-                new LinearLayout.LayoutParams(
-                        -1,
-                        dp(58)
-                );
-
-        p.setMargins(
-                dp(8),
-                dp(6),
-                dp(8),
-                dp(6)
-        );
-
-        b.setLayoutParams(p);
-
-        return b;
-    }
-
-    private Button smallButton(
-            String value
-    ) {
-        Button b =
-                new Button(this);
-
-        b.setText(value);
-        b.setTextSize(15);
-        b.setTextColor(WHITE);
-        b.setAllCaps(false);
-
-        b.setGravity(
-                Gravity.CENTER
-        );
-
-        b.setBackground(
-                rounded(
-                        BLUE,
-                        10
-                )
-        );
-
-        LinearLayout.LayoutParams p =
-                new LinearLayout.LayoutParams(
-                        0,
-                        dp(50),
-                        1
-                );
-
-        p.setMargins(
+        view.setPadding(
                 dp(4),
-                dp(4),
-                dp(4),
-                dp(4)
-        );
-
-        b.setLayoutParams(p);
-
-        return b;
-    }
-
-    private EditText input(
-            String hint
-    ) {
-        EditText e =
-                new EditText(this);
-
-        e.setHint(hint);
-        e.setTextSize(17);
-        e.setTextColor(DARK);
-        e.setHintTextColor(GRAY);
-
-        e.setSingleLine(true);
-
-        e.setGravity(
-                Gravity.RIGHT |
-                        Gravity.CENTER_VERTICAL
-        );
-
-        e.setPadding(
-                dp(14),
                 dp(8),
-                dp(14),
+                dp(4),
                 dp(8)
         );
 
-        e.setBackground(
-                bordered(
-                        WHITE,
-                        Color.rgb(
-                                215,
-                                220,
-                                225
-                        )
-                )
+        return view;
+    }
+
+    private Button button(
+            String value,
+            int color
+    ) {
+        Button view =
+                new Button(this);
+
+        view.setText(value);
+        view.setTextSize(15);
+        view.setTextColor(WHITE);
+        view.setAllCaps(false);
+        view.setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
         );
 
-        LinearLayout.LayoutParams p =
+        view.setGravity(Gravity.CENTER);
+
+        view.setBackground(
+                rounded(color, 14)
+        );
+
+        LinearLayout.LayoutParams params =
                 new LinearLayout.LayoutParams(
                         -1,
                         dp(52)
                 );
 
-        p.setMargins(
+        params.setMargins(
                 0,
-                dp(5),
+                dp(4),
                 0,
-                dp(5)
+                dp(4)
         );
 
-        e.setLayoutParams(p);
+        view.setLayoutParams(params);
 
-        return e;
+        return view;
+    }
+
+    private Button smallButton(
+            String value,
+            int color
+    ) {
+        Button view =
+                new Button(this);
+
+        view.setText(value);
+        view.setTextSize(13);
+        view.setTextColor(WHITE);
+        view.setAllCaps(false);
+
+        view.setBackground(
+                rounded(color, 12)
+        );
+
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(
+                        dp(95),
+                        dp(45)
+                );
+
+        view.setLayoutParams(params);
+
+        return view;
+    }
+
+    private EditText input(String hint) {
+        EditText view =
+                new EditText(this);
+
+        view.setHint(hint);
+        view.setTextSize(15);
+        view.setTextColor(DARK);
+        view.setHintTextColor(GRAY);
+
+        view.setSingleLine(true);
+
+        view.setPadding(
+                dp(14),
+                dp(4),
+                dp(14),
+                dp(4)
+        );
+
+        view.setBackground(
+                bordered(
+                        WHITE,
+                        Color.LTGRAY,
+                        12
+                )
+        );
+
+        view.setLayoutParams(
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(52)
+                )
+        );
+
+        return view;
     }
 
     private LinearLayout content() {
-        LinearLayout c =
+        LinearLayout layout =
                 new LinearLayout(this);
 
-        c.setOrientation(
+        layout.setOrientation(
                 LinearLayout.VERTICAL
         );
 
-        c.setPadding(
-                dp(14),
-                dp(12),
-                dp(14),
-                dp(20)
+        layout.setPadding(
+                dp(16),
+                dp(16),
+                dp(16),
+                dp(24)
         );
 
-        c.setLayoutDirection(
-                View.LAYOUT_DIRECTION_RTL
-        );
-
-        return c;
+        return layout;
     }
 
     private LinearLayout horizontal() {
-        LinearLayout h =
+        LinearLayout layout =
                 new LinearLayout(this);
 
-        h.setOrientation(
+        layout.setOrientation(
                 LinearLayout.HORIZONTAL
         );
 
-        h.setGravity(
-                Gravity.CENTER
+        layout.setGravity(
+                Gravity.CENTER_VERTICAL
         );
 
-        h.setLayoutDirection(
-                View.LAYOUT_DIRECTION_RTL
-        );
-
-        return h;
+        return layout;
     }
 
     private ScrollView scroll(
-            LinearLayout c
+            View child
     ) {
-        ScrollView s =
+        ScrollView view =
                 new ScrollView(this);
 
-        s.setFillViewport(true);
-        s.addView(c);
+        view.setFillViewport(true);
+        view.addView(child);
 
-        return s;
+        return view;
     }
 
     private void prepareRoot() {
-        root =
-                new LinearLayout(this);
+        root = new LinearLayout(this);
 
         root.setOrientation(
                 LinearLayout.VERTICAL
         );
 
-        root.setBackgroundColor(
-                LIGHT
-        );
+        root.setBackgroundColor(LIGHT);
 
-        root.setLayoutDirection(
-                View.LAYOUT_DIRECTION_RTL
+        setContentView(
+                scroll(root)
         );
-
-        setContentView(root);
     }
 
-    private void space(
-            LinearLayout c,
-            int height
-    ) {
-        View v =
-                new View(this);
+    private TextView space(int height) {
+        TextView view =
+                new TextView(this);
 
-        v.setLayoutParams(
+        view.setLayoutParams(
                 new LinearLayout.LayoutParams(
                         1,
                         dp(height)
                 )
         );
 
-        c.addView(v);
+        return view;
     }
 
-    private TextView section(
-            String value
-    ) {
-        TextView t =
-                text(
-                        value,
-                        22,
-                        DARK,
-                        true
-                );
+    private View spaceHorizontal(int width) {
+        View view = new View(this);
 
-        t.setGravity(
-                Gravity.RIGHT
-        );
-
-        t.setPadding(
-                dp(5),
-                dp(15),
-                dp(5),
-                dp(8)
-        );
-
-        return t;
-    }
-
-    private LinearLayout card() {
-        LinearLayout c =
-                content();
-
-        c.setPadding(
-                dp(12),
-                dp(10),
-                dp(12),
-                dp(10)
-        );
-
-        c.setBackground(
-                rounded(
-                        WHITE,
-                        16
+        view.setLayoutParams(
+                new LinearLayout.LayoutParams(
+                        dp(width),
+                        1
                 )
         );
 
-        c.setElevation(
-                dp(2)
+        return view;
+    }
+
+    private TextView section(String value) {
+        TextView view =
+                text(
+                        value,
+                        17,
+                        DARK_BLUE
+                );
+
+        view.setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
         );
 
-        LinearLayout.LayoutParams p =
+        view.setPadding(
+                dp(4),
+                dp(10),
+                dp(4),
+                dp(6)
+        );
+
+        return view;
+    }
+
+    private LinearLayout card() {
+        LinearLayout layout =
+                new LinearLayout(this);
+
+        layout.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        layout.setPadding(
+                dp(14),
+                dp(14),
+                dp(14),
+                dp(14)
+        );
+
+        layout.setBackground(
+                bordered(
+                        WHITE,
+                        Color.rgb(
+                                225,
+                                228,
+                                232
+                        ),
+                        14
+                )
+        );
+
+        LinearLayout.LayoutParams params =
                 new LinearLayout.LayoutParams(
                         -1,
                         -2
                 );
 
-        p.setMargins(
-                dp(7),
-                dp(6),
-                dp(7),
-                dp(6)
+        params.setMargins(
+                0,
+                dp(5),
+                0,
+                dp(5)
         );
 
-        c.setLayoutParams(p);
+        layout.setLayoutParams(params);
 
-        return c;
+        return layout;
     }
 
-    private TextView statCard(
-            String icon,
-            String number,
+    private LinearLayout statCard(
             String label,
-            int border
+            String value,
+            int color
     ) {
-        TextView t =
-                text(
-                        icon
-                                + "\n"
-                                + number
-                                + "\n"
-                                + label,
-                        17,
-                        DARK,
-                        true
-                );
+        LinearLayout layout = card();
 
-        t.setGravity(
-                Gravity.CENTER
+        LinearLayout row =
+                horizontal();
+
+        LinearLayout info =
+                new LinearLayout(this);
+
+        info.setOrientation(
+                LinearLayout.VERTICAL
         );
 
-        t.setBackground(
-                bordered(
-                        WHITE,
-                        border
+        TextView title =
+                text(
+                        label,
+                        14,
+                        GRAY
+                );
+
+        TextView number =
+                text(
+                        value,
+                        25,
+                        color
+                );
+
+        number.setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
+        );
+
+        info.addView(title);
+        info.addView(number);
+
+        row.addView(
+                info,
+                new LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1
                 )
         );
 
-        return t;
+        layout.addView(row);
+
+        return layout;
     }
 
-    // =========================
-    // الصفحة الرئيسية
-    // =========================
+    private int totalStudents() {
+        return students.length();
+    }
+
+    private int totalClasses() {
+        return classes.length();
+    }
+
+    private int passedStudents() {
+        int count = 0;
+
+        for (int i = 0; i < students.length(); i++) {
+            JSONObject student =
+                    students.optJSONObject(i);
+
+            if (student != null
+                    && average(student) >= 50) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private double generalAverage() {
+        if (students.length() == 0) {
+            return 0;
+        }
+
+        double total = 0;
+
+        for (int i = 0; i < students.length(); i++) {
+            JSONObject student =
+                    students.optJSONObject(i);
+
+            if (student != null) {
+                total += average(student);
+            }
+        }
+
+        return total / students.length();
+    }
 
     private void showHome() {
         prepareRoot();
 
-        LinearLayout header =
-                new LinearLayout(this);
+        LinearLayout page =
+                content();
 
-        header.setOrientation(
-                LinearLayout.VERTICAL
+        TextView appTitle =
+                title(
+                        "سجل درجات الاجتماعيات"
+                );
+
+        appTitle.setTextColor(
+                DARK_BLUE
         );
 
-        header.setGravity(
+        appTitle.setGravity(
                 Gravity.CENTER
         );
 
-        header.setPadding(
-                dp(10),
-                dp(14),
-                dp(10),
-                dp(16)
-        );
-
-        header.setBackground(
-                rounded(
-                        BLUE,
-                        0
-                )
-        );
-
-        TextView appName =
-                text(
-                        "📚  سجل درجات الاجتماعيات",
-                        28,
-                        WHITE,
-                        true
-                );
+        page.addView(appTitle);
 
         TextView teacher =
                 text(
                         "الأستاذ أمير محمد",
-                        20,
-                        WHITE,
-                        true
+                        16,
+                        GRAY
                 );
 
-        TextView description =
+        teacher.setGravity(
+                Gravity.CENTER
+        );
+
+        page.addView(teacher);
+
+        page.addView(space(5));
+
+        TextView subtitle =
                 text(
-                        "نظام احترافي لإدارة الطلاب والدرجات والتقارير",
-                        15,
-                        WHITE,
-                        false
+                        "نظام إدارة درجات الطلاب",
+                        14,
+                        GRAY
                 );
 
-        header.addView(appName);
-        header.addView(teacher);
-        header.addView(description);
-
-        root.addView(header);
-
-        LinearLayout c =
-                content();
-
-        c.addView(
-                section(
-                        "لوحة التحكم"
-                )
+        subtitle.setGravity(
+                Gravity.CENTER
         );
 
-        int passed = 0;
-        int failed = 0;
+        page.addView(subtitle);
 
-        double totalAverage = 0;
-        int averageCount = 0;
+        page.addView(space(15));
 
-        for (int i = 0;
-             i < students.length();
-             i++) {
+        page.addView(
+                section("لوحة المعلومات")
+        );
 
-            JSONObject st =
-                    students.optJSONObject(i);
-
-            if (st == null) continue;
-
-            double avg =
-                    average(st);
-
-            if (avg >= 50) {
-                passed++;
-            } else {
-                failed++;
-            }
-
-            if (hasGrades(st)) {
-                totalAverage += avg;
-                averageCount++;
-            }
-        }
-
-        double generalAverage =
-                averageCount == 0
-                        ? 0
-                        : totalAverage /
-                                averageCount;
-
-        LinearLayout stats =
-                horizontal();
-
-        stats.addView(
+        page.addView(
                 statCard(
-                        "👨‍🎓",
+                        "إجمالي الطلاب",
                         String.valueOf(
-                                students.length()
+                                totalStudents()
                         ),
-                        "الطلاب",
                         BLUE
-                ),
-                new LinearLayout.LayoutParams(
-                        0,
-                        dp(120),
-                        1
                 )
         );
 
-        stats.addView(
+        page.addView(
                 statCard(
-                        "🏫",
+                        "إجمالي الصفوف",
                         String.valueOf(
-                                classes.length()
+                                totalClasses()
                         ),
-                        "الشعب",
-                        BLUE
-                ),
-                new LinearLayout.LayoutParams(
-                        0,
-                        dp(120),
-                        1
+                        DARK_BLUE
                 )
         );
 
-        stats.addView(
+        page.addView(
                 statCard(
-                        "✅",
-                        String.valueOf(passed),
-                        "الناجحون",
+                        "الطلاب الناجحون",
+                        String.valueOf(
+                                passedStudents()
+                        ),
                         GREEN
-                ),
-                new LinearLayout.LayoutParams(
-                        0,
-                        dp(120),
-                        1
                 )
         );
 
-        stats.addView(
+        page.addView(
                 statCard(
-                        "📈",
-                        format(
-                                generalAverage
-                        ),
                         "المعدل العام",
+                        format(
+                                generalAverage()
+                        ),
                         ORANGE
-                ),
-                new LinearLayout.LayoutParams(
-                        0,
-                        dp(120),
-                        1
                 )
         );
 
-        c.addView(stats);
+        page.addView(space(12));
+
+        page.addView(
+                section("إدارة السجل")
+        );
 
         Button studentsButton =
                 button(
-                        "👨‍🎓  إدارة الطلاب"
+                        "👨‍🎓 إدارة الطلاب",
+                        BLUE
                 );
 
         Button classesButton =
                 button(
-                        "🏫  إدارة الشعب الدراسية"
+                        "🏫 إدارة الصفوف",
+                        DARK_BLUE
                 );
 
         Button gradesButton =
                 button(
-                        "📝  إدخال وتعديل الدرجات"
+                        "📝 إدخال الدرجات",
+                        GREEN
                 );
 
         Button recordsButton =
                 button(
-                        "📊  سجل الدرجات والتقارير"
+                        "📋 سجل الدرجات",
+                        ORANGE
                 );
 
-        Button rankingButton =
+        page.addView(studentsButton);
+        page.addView(classesButton);
+        page.addView(gradesButton);
+               Button rankingButton =
                 button(
-                        "🏆  ترتيب الطلاب"
+                        "🏆 ترتيب الطلاب",
+                        BLUE
                 );
+
+        Button reportButton =
+                button(
+                        "📊 التقرير العام",
+                        DARK_BLUE
+                );
+
+        Button classReportButton =
+                button(
+                        "📚 تقارير الصفوف",
+                        ORANGE
+                );
+
+        page.addView(rankingButton);
+        page.addView(reportButton);
+        page.addView(classReportButton);
+
+        page.addView(space(8));
+
+        page.addView(
+                section("أدوات النظام")
+        );
 
         Button backupButton =
                 button(
-                        "💾  النسخ الاحتياطي والمشاركة"
+                        "💾 النسخ الاحتياطي والمشاركة",
+                        BLUE
                 );
 
         Button settingsButton =
                 button(
-                        "⚙️  الإعدادات"
+                        "⚙️ الإعدادات",
+                        GRAY
                 );
 
-        c.addView(
-                section(
-                        "الإدارة"
-                )
-        );
-
-        c.addView(studentsButton);
-        c.addView(classesButton);
-        c.addView(gradesButton);
-        c.addView(recordsButton);
-        c.addView(rankingButton);
-        c.addView(backupButton);
-        c.addView(settingsButton);
-
-        c.addView(
-                text(
-                        "حفظ تلقائي • إدارة سهلة • تقارير واضحة",
-                        14,
-                        GRAY,
-                        false
-                )
-        );
-
-        root.addView(
-                scroll(c),
-                new LinearLayout.LayoutParams(
-                        -1,
-                        0,
-                        1
-                )
-        );
-
-        studentsButton.setOnClickListener(
-                v -> showStudents()
-        );
-
-        classesButton.setOnClickListener(
-                v -> showClasses()
-        );
-
-        gradesButton.setOnClickListener(
-                v -> showGrades()
-        );
-
-        recordsButton.setOnClickListener(
-                v -> showRecords()
-        );
+        page.addView(backupButton);
+        page.addView(settingsButton);
 
         rankingButton.setOnClickListener(
                 v -> showRanking()
+        );
+
+        reportButton.setOnClickListener(
+                v -> showReport()
+        );
+
+        classReportButton.setOnClickListener(
+                v -> showClassReport()
         );
 
         backupButton.setOnClickListener(
@@ -797,19 +716,6 @@ public class MainActivity extends Activity {
         settingsButton.setOnClickListener(
                 v -> showSettings()
         );
-    }        });
-        
-        classesButton.setOnClickListener(v -> showClasses());
-        
-        gradesButton.setOnClickListener(v -> showGrades());
-        
-        recordsButton.setOnClickListener(v -> showRecords());
-        
-        rankingButton.setOnClickListener(v -> showRanking());
-        
-        backupButton.setOnClickListener(v -> showBackup());
-        
-        settingsButton.setOnClickListener(v -> showSettings());
     }
 
     private void showStudents() {
@@ -818,238 +724,508 @@ public class MainActivity extends Activity {
         LinearLayout page = content();
 
         LinearLayout header = horizontal();
-        TextView heading = title("إدارة الطلاب");
-        header.addView(heading, new LinearLayout.LayoutParams(0, -2, 1));
 
-        Button add = smallButton("＋ إضافة طالب", GREEN);
+        TextView heading =
+                title("إدارة الطلاب");
+
+        header.addView(
+                heading,
+                new LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1
+                )
+        );
+
+        Button add =
+                smallButton(
+                        "＋ إضافة طالب",
+                        GREEN
+                );
+
         header.addView(add);
+
         page.addView(header);
-
         page.addView(space(10));
 
-        EditText search = input("بحث عن اسم الطالب...");
+        EditText search =
+                input("بحث عن اسم الطالب...");
+
         page.addView(search);
-
         page.addView(space(10));
 
-        LinearLayout list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout list =
+                new LinearLayout(this);
+
+        list.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
         page.addView(list);
 
-        renderStudents(list, "");
+        renderStudents(
+                list,
+                ""
+        );
 
-        search.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+        search.addTextChangedListener(
+                new TextWatcher() {
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                renderStudents(list, s.toString());
-            }
+                    @Override
+                    public void beforeTextChanged(
+                            CharSequence s,
+                            int start,
+                            int count,
+                            int after
+                    ) {
+                    }
 
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+                    @Override
+                    public void onTextChanged(
+                            CharSequence s,
+                            int start,
+                            int before,
+                            int count
+                    ) {
+                        renderStudents(
+                                list,
+                                s.toString()
+                        );
+                    }
 
-        add.setOnClickListener(v -> addStudentDialog());
+                    @Override
+                    public void afterTextChanged(
+                            Editable s
+                    ) {
+                    }
+                }
+        );
+
+        add.setOnClickListener(
+                v -> addStudentDialog()
+        );
     }
 
-    private void renderStudents(LinearLayout list, String query) {
+    private void renderStudents(
+            LinearLayout list,
+            String query
+    ) {
         list.removeAllViews();
 
-        ArrayList<JSONObject> found = new ArrayList<>();
+        ArrayList<JSONObject> found =
+                new ArrayList<>();
 
-        for (int i = 0; i < students.length(); i++) {
-            try {
-                JSONObject student = students.getJSONObject(i);
-                String name = student.optString("name", "");
+        String search =
+                query == null
+                        ? ""
+                        : query.trim()
+                        .toLowerCase(
+                                Locale.ROOT
+                        );
 
-                if (query == null || query.trim().isEmpty()
-                        || name.toLowerCase(Locale.ROOT)
-                        .contains(query.trim().toLowerCase(Locale.ROOT))) {
-                    found.add(student);
-                }
+        for (int i = 0;
+             i < students.length();
+             i++) {
 
-            } catch (Exception ignored) {
+            JSONObject student =
+                    students.optJSONObject(i);
+
+            if (student == null) {
+                continue;
+            }
+
+            String name =
+                    student.optString(
+                            "name",
+                            ""
+                    );
+
+            if (search.isEmpty()
+                    || name.toLowerCase(
+                    Locale.ROOT
+            ).contains(search)) {
+
+                found.add(student);
             }
         }
 
-        TextView count = text(
-                "عدد النتائج: " + found.size(),
-                14,
-                GRAY
+        TextView count =
+                text(
+                        "عدد النتائج: "
+                                + found.size(),
+                        14,
+                        GRAY
+                );
+
+        count.setPadding(
+                dp(4),
+                dp(4),
+                dp(4),
+                dp(8)
         );
-        count.setPadding(dp(4), dp(4), dp(4), dp(8));
+
         list.addView(count);
 
         if (found.isEmpty()) {
-            TextView empty = text(
-                    "لا توجد نتائج.",
-                    16,
-                    GRAY
+
+            TextView empty =
+                    text(
+                            "لا توجد نتائج.",
+                            16,
+                            GRAY
+                    );
+
+            empty.setGravity(
+                    Gravity.CENTER
             );
-            empty.setGravity(Gravity.CENTER);
-            empty.setPadding(0, dp(30), 0, dp(30));
+
+            empty.setPadding(
+                    0,
+                    dp(30),
+                    0,
+                    dp(30)
+            );
+
             list.addView(empty);
             return;
         }
 
         for (JSONObject student : found) {
-            list.addView(studentCard(student));
+            list.addView(
+                    studentCard(student)
+            );
         }
     }
 
-    private View studentCard(JSONObject student) {
-        LinearLayout card = card();
+    private View studentCard(
+            JSONObject student
+    ) {
+        LinearLayout item = card();
 
-        LinearLayout top = horizontal();
+        LinearLayout top =
+                horizontal();
 
-        TextView name = text(
-                student.optString("name", "بدون اسم"),
-                18,
-                DARK
+        TextView name =
+                text(
+                        student.optString(
+                                "name",
+                                "بدون اسم"
+                        ),
+                        18,
+                        DARK
+                );
+
+        name.setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
         );
-        name.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
 
-        top.addView(name, new LinearLayout.LayoutParams(0, -2, 1));
+        top.addView(
+                name,
+                new LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1
+                )
+        );
 
-        Button edit = smallButton("تعديل", BLUE);
-        Button delete = smallButton("حذف", RED);
+        Button edit =
+                smallButton(
+                        "تعديل",
+                        BLUE
+                );
+
+        Button delete =
+                smallButton(
+                        "حذف",
+                        RED
+                );
 
         top.addView(edit);
-        top.addView(spaceHorizontal(5));
+        top.addView(
+                spaceHorizontal(5)
+        );
         top.addView(delete);
 
-        card.addView(top);
+        item.addView(top);
 
-        String school = student.optString("school", "");
-        String className = student.optString("className", "");
+        String school =
+                student.optString(
+                        "school",
+                        ""
+                );
 
-        TextView info = text(
-                "المدرسة: " + (school.isEmpty() ? "غير محددة" : school)
-                        + "\nالشعبة: " + (className.isEmpty() ? "غير محددة" : className),
-                14,
-                GRAY
+        String className =
+                student.optString(
+                        "className",
+                        ""
+                );
+
+        TextView info =
+                text(
+                        "المدرسة: "
+                                + (
+                                school.isEmpty()
+                                        ? "غير محددة"
+                                        : school
+                        )
+                                + "\nالصف: "
+                                + (
+                                className.isEmpty()
+                                        ? "غير محدد"
+                                        : className
+                        ),
+                        14,
+                        GRAY
+                );
+
+        info.setPadding(
+                0,
+                dp(8),
+                0,
+                0
         );
 
-        info.setPadding(0, dp(8), 0, 0);
-        card.addView(info);
+        item.addView(info);
 
-        edit.setOnClickListener(v -> editStudentDialog(student));
+        edit.setOnClickListener(
+                v -> editStudentDialog(student)
+        );
 
-        delete.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("حذف الطالب")
-                    .setMessage(
-                            "هل أنت متأكد من حذف الطالب:\n"
-                                    + student.optString("name", "")
-                                    + " ؟"
-                    )
-                    .setNegativeButton("إلغاء", null)
-                    .setPositiveButton("حذف", (dialog, which) -> {
-                        deleteStudent(student);
-                    })
-                    .show();
-        });
+        delete.setOnClickListener(
+                v -> {
+                    new AlertDialog.Builder(this)
+                            .setTitle(
+                                    "حذف الطالب"
+                            )
+                            .setMessage(
+                                    "هل أنت متأكد من حذف الطالب:\n"
+                                            + student.optString(
+                                            "name",
+                                            ""
+                                    )
+                                            + " ؟"
+                            )
+                            .setNegativeButton(
+                                    "إلغاء",
+                                    null
+                            )
+                            .setPositiveButton(
+                                    "حذف",
+                                    (dialog, which) ->
+                                            deleteStudent(
+                                                    student
+                                            )
+                            )
+                            .show();
+                }
+        );
 
-        return card;
+        return item;
     }
 
     private void addStudentDialog() {
-        LinearLayout form = new LinearLayout(this);
-        form.setOrientation(LinearLayout.VERTICAL);
-        form.setPadding(dp(20), dp(5), dp(20), dp(5));
+        LinearLayout form =
+                new LinearLayout(this);
 
-        EditText name = input("اسم الطالب");
-        EditText school = input("اسم المدرسة");
+        form.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        form.setPadding(
+                dp(20),
+                dp(5),
+                dp(20),
+                dp(5)
+        );
+
+        EditText name =
+                input("اسم الطالب");
+
+        EditText school =
+                input("اسم المدرسة");
 
         form.addView(name);
         form.addView(space(8));
         form.addView(school);
         form.addView(space(8));
 
-        Spinner classSpinner = spinner(classOptions());
+        ArrayList<String> options =
+                classOptions();
+
+        Spinner classSpinner =
+                spinner(options);
+
         form.addView(classSpinner);
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("إضافة طالب جديد")
-                .setView(form)
-                .setNegativeButton("إلغاء", null)
-                .setPositiveButton("إضافة", null)
-                .create();
+        AlertDialog dialog =
+                new AlertDialog.Builder(this)
+                        .setTitle(
+                                "إضافة طالب جديد"
+                        )
+                        .setView(form)
+                        .setNegativeButton(
+                                "إلغاء",
+                                null
+                        )
+                        .setPositiveButton(
+                                "إضافة",
+                                null
+                        )
+                        .create();
 
-        dialog.setOnShowListener(d -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                    .setOnClickListener(v -> {
+        dialog.setOnShowListener(
+                d -> {
 
-                        String studentName = name.getText()
-                                .toString()
-                                .trim();
+                    dialog.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                    ).setOnClickListener(
+                            v -> {
 
-                        String schoolName = school.getText()
-                                .toString()
-                                .trim();
+                                String studentName =
+                                        name.getText()
+                                                .toString()
+                                                .trim();
 
-                        if (studentName.isEmpty()) {
-                            name.setError("أدخل اسم الطالب");
-                            return;
-                        }
+                                String schoolName =
+                                        school.getText()
+                                                .toString()
+                                                .trim();
 
-                        JSONObject student = new JSONObject();
+                                if (studentName.isEmpty()) {
+                                    name.setError(
+                                            "أدخل اسم الطالب"
+                                    );
+                                    return;
+                                }
 
-                        try {
-                            student.put("name", studentName);
-                            student.put("school", schoolName);
-                            student.put(
-                                    "className",
-                                    classSpinner.getSelectedItem().toString()
-                            );
+                                try {
+                                    JSONObject student =
+                                            new JSONObject();
 
-                            student.put("monthly", 0);
-                            student.put("mid", 0);
-                            student.put("second", 0);
-                            student.put("final", 0);
+                                    student.put(
+                                            "name",
+                                            studentName
+                                    );
 
-                            students.put(student);
-                            saveData();
+                                    student.put(
+                                            "school",
+                                            schoolName
+                                    );
 
-                            dialog.dismiss();
-                            showStudents();
+                                    student.put(
+                                            "className",
+                                            classSpinner
+                                                    .getSelectedItem()
+                                                    .toString()
+                                    );
 
-                            toast("تمت إضافة الطالب بنجاح");
+                                    student.put(
+                                            "monthly",
+                                            0
+                                    );
 
-                        } catch (Exception e) {
-                            toast("حدث خطأ أثناء إضافة الطالب");
-                        }
-                    });
-        });
+                                    student.put(
+                                            "mid",
+                                            0
+                                    );
+
+                                    student.put(
+                                            "second",
+                                            0
+                                    );
+
+                                    student.put(
+                                            "final",
+                                            0
+                                    );
+
+                                    students.put(
+                                            student
+                                    );
+
+                                    saveData();
+
+                                    dialog.dismiss();
+
+                                    showStudents();
+
+                                    toast(
+                                            "تمت إضافة الطالب بنجاح"
+                                    );
+
+                                } catch (Exception e) {
+
+                                    toast(
+                                            "حدث خطأ أثناء إضافة الطالب"
+                                    );
+                                }
+                            }
+                    );
+                }
+        );
 
         dialog.show();
     }
 
-    private void editStudentDialog(JSONObject student) {
-        LinearLayout form = new LinearLayout(this);
-        form.setOrientation(LinearLayout.VERTICAL);
-        form.setPadding(dp(20), dp(5), dp(20), dp(5));
+    private void editStudentDialog(
+            JSONObject student
+    ) {
+        LinearLayout form =
+                new LinearLayout(this);
 
-        EditText name = input("اسم الطالب");
-        name.setText(student.optString("name", ""));
+        form.setOrientation(
+                LinearLayout.VERTICAL
+        );
 
-        EditText school = input("اسم المدرسة");
-        school.setText(student.optString("school", ""));
+        form.setPadding(
+                dp(20),
+                dp(5),
+                dp(20),
+                dp(5)
+        );
 
-        Spinner classSpinner = spinner(classOptions());
+        EditText name =
+                input("اسم الطالب");
 
-        String currentClass = student.optString("className", "");
+        name.setText(
+                student.optString(
+                        "name",
+                        ""
+                )
+        );
 
-        ArrayList<String> options = classOptions();
+        EditText school =
+                input("اسم المدرسة");
 
-        int selected = options.indexOf(currentClass);
+        school.setText(
+                student.optString(
+                        "school",
+                        ""
+                )
+        );
+
+        ArrayList<String> options =
+                classOptions();
+
+        Spinner classSpinner =
+                spinner(options);
+
+        String currentClass =
+                student.optString(
+                        "className",
+                        ""
+                );
+
+        int selected =
+                options.indexOf(
+                        currentClass
+                );
 
         if (selected >= 0) {
-            classSpinner.setSelection(selected);
+            classSpinner.setSelection(
+                    selected
+            );
         }
 
         form.addView(name);
@@ -1058,111 +1234,164 @@ public class MainActivity extends Activity {
         form.addView(space(8));
         form.addView(classSpinner);
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("تعديل بيانات الطالب")
-                .setView(form)
-                .setNegativeButton("إلغاء", null)
-                .setPositiveButton("حفظ", null)
-                .create();
+        AlertDialog dialog =
+                new AlertDialog.Builder(this)
+                        .setTitle(
+                                "تعديل بيانات الطالب"
+                        )
+                        .setView(form)
+                        .setNegativeButton(
+                                "إلغاء",
+                                null
+                        )
+                        .setPositiveButton(
+                                "حفظ",
+                                null
+                        )
+                        .create();
 
-        dialog.setOnShowListener(d -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                    .setOnClickListener(v -> {
+        dialog.setOnShowListener(
+                d -> {
 
-                        String newName = name.getText()
-                                .toString()
-                                .trim();
+                    dialog.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                    ).setOnClickListener(
+                            v -> {
 
-                        if (newName.isEmpty()) {
-                            name.setError("أدخل اسم الطالب");
-                            return;
-                        }
+                                String newName =
+                                        name.getText()
+                                                .toString()
+                                                .trim();
 
-                        try {
-                            student.put("name", newName);
-                            student.put(
-                                    "school",
-                                    school.getText().toString().trim()
-                            );
-                            student.put(
-                                    "className",
-                                    classSpinner.getSelectedItem().toString()
-                            );
+                                if (newName.isEmpty()) {
+                                    name.setError(
+                                            "أدخل اسم الطالب"
+                                    );
+                                    return;
+                                }
 
-                            saveData();
-                            dialog.dismiss();
-                            showStudents();
+                                try {
 
-                            toast("تم حفظ التعديلات");
+                                    student.put(
+                                            "name",
+                                            newName
+                                    );
 
-                        } catch (Exception e) {
-                            toast("تعذر حفظ التعديلات");
-                        }
-                    });
-        });
+                                    student.put(
+                                            "school",
+                                            school.getText()
+                                                    .toString()
+                                                    .trim()
+                                    );
+
+                                    student.put(
+                                            "className",
+                                            classSpinner
+                                                    .getSelectedItem()
+                                                    .toString()
+                                    );
+
+                                    saveData();
+
+                                    dialog.dismiss();
+
+                                    showStudents();
+
+                                    toast(
+                                            "تم حفظ التعديلات"
+                                    );
+
+                                } catch (Exception e) {
+
+                                    toast(
+                                            "تعذر حفظ التعديلات"
+                                    );
+                                }
+                            }
+                    );
+                }
+        );
 
         dialog.show();
     }
 
-    private void deleteStudent(JSONObject student) {
-        JSONArray updated = new JSONArray();
+    private void deleteStudent(
+            JSONObject student
+    ) {
+        JSONArray updated =
+                new JSONArray();
 
-        String targetName = student.optString("name", "");
-        String targetSchool = student.optString("school", "");
+        String targetName =
+                student.optString(
+                        "name",
+                        ""
+                );
 
-        for (int i = 0; i < students.length(); i++) {
-            try {
-                JSONObject item = students.getJSONObject(i);
+        String targetSchool =
+                student.optString(
+                        "school",
+                        ""
+                );
 
-                if (!item.optString("name", "").equals(targetName)
-                        || !item.optString("school", "").equals(targetSchool)) {
-                    updated.put(item);
-                }
+        for (int i = 0;
+             i < students.length();
+             i++) {
 
-            } catch (Exception ignored) {
+            JSONObject item =
+                    students.optJSONObject(i);
+
+            if (item == null) {
+                continue;
+            }
+
+            boolean sameName =
+                    item.optString(
+                            "name",
+                            ""
+                    ).equals(targetName);
+
+            boolean sameSchool =
+                    item.optString(
+                            "school",
+                            ""
+                    ).equals(targetSchool);
+
+            if (!sameName || !sameSchool) {
+                updated.put(item);
             }
         }
 
         students = updated;
+
         saveData();
+
         showStudents();
 
-        toast("تم حذف الطالب");
+        toast(
+                "تم حذف الطالب"
+        );
     }
 
     private ArrayList<String> classOptions() {
-        ArrayList<String> result = new ArrayList<>();
+        ArrayList<String> result =
+                new ArrayList<>();
 
-        for (int i = 0; i < classes.length(); i++) {
-            result.add(classes.optString(i, ""));
+        for (int i = 0;
+             i < classes.length();
+             i++) {
+
+            String value =
+                    classes.optString(
+                            i,
+                            ""
+                    );
+
+            if (!value.isEmpty()) {
+                result.add(value);
+            }
         }
 
         if (result.isEmpty()) {
-            result.add("الصف الأول");
-        }
-
-        return result;
-    }
-
-    private Spinner spinner(ArrayList<String> values) {
-        Spinner spinner = new Spinner(this);
-
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(
-                        this,
-                        android.R.layout.simple_spinner_item,
-                        values
-                );
-
-        adapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item
-        );
-
-        spinner.setAdapter(adapter);
-
-        return spinner;
-    }
-
     private void showClasses() {
         prepareRoot();
 
@@ -1171,108 +1400,192 @@ public class MainActivity extends Activity {
         LinearLayout header = horizontal();
 
         TextView heading = title("إدارة الصفوف");
-        header.addView(heading, new LinearLayout.LayoutParams(0, -2, 1));
 
-        Button add = smallButton("＋ إضافة صف", GREEN);
+        header.addView(
+                heading,
+                new LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1
+                )
+        );
+
+        Button add =
+                smallButton(
+                        "＋ إضافة صف",
+                        GREEN
+                );
+
         header.addView(add);
 
         page.addView(header);
         page.addView(space(10));
 
-        LinearLayout list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout list =
+                new LinearLayout(this);
+
+        list.setOrientation(
+                LinearLayout.VERTICAL
+        );
 
         page.addView(list);
 
         renderClasses(list);
 
-        add.setOnClickListener(v -> addClassDialog());
+        add.setOnClickListener(
+                v -> addClassDialog()
+        );
     }
 
-    private void renderClasses(LinearLayout list) {
+    private void renderClasses(
+            LinearLayout list
+    ) {
         list.removeAllViews();
 
         if (classes.length() == 0) {
+
             list.addView(
-                    text("لا توجد صفوف مضافة حالياً.", 16, GRAY)
+                    text(
+                            "لا توجد صفوف مضافة حالياً.",
+                            16,
+                            GRAY
+                    )
             );
+
             return;
         }
 
-        for (int i = 0; i < classes.length(); i++) {
+        for (int i = 0;
+             i < classes.length();
+             i++) {
+
             final int index = i;
 
-            String className = classes.optString(i, "");
+            String className =
+                    classes.optString(
+                            i,
+                            ""
+                    );
 
-            LinearLayout item = card();
+            LinearLayout item =
+                    card();
 
-            LinearLayout row = horizontal();
+            LinearLayout row =
+                    horizontal();
 
-            LinearLayout names = new LinearLayout(this);
-            names.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout names =
+                    new LinearLayout(this);
 
-            TextView name = text(
-                    className,
-                    18,
-                    DARK
+            names.setOrientation(
+                    LinearLayout.VERTICAL
             );
+
+            TextView name =
+                    text(
+                            className,
+                            18,
+                            DARK
+                    );
+
             name.setTypeface(
                     Typeface.DEFAULT,
                     Typeface.BOLD
             );
 
-            TextView studentsCount = text(
-                    "عدد الطلاب: " + countInClass(className),
-                    14,
-                    GRAY
-            );
+            TextView studentsCount =
+                    text(
+                            "عدد الطلاب: "
+                                    + countInClass(
+                                    className
+                            ),
+                            14,
+                            GRAY
+                    );
 
             names.addView(name);
             names.addView(studentsCount);
 
             row.addView(
                     names,
-                    new LinearLayout.LayoutParams(0, -2, 1)
+                    new LinearLayout.LayoutParams(
+                            0,
+                            -2,
+                            1
+                    )
             );
 
-            Button edit = smallButton("تعديل", BLUE);
-            Button delete = smallButton("حذف", RED);
+            Button edit =
+                    smallButton(
+                            "تعديل",
+                            BLUE
+                    );
+
+            Button delete =
+                    smallButton(
+                            "حذف",
+                            RED
+                    );
 
             row.addView(edit);
-            row.addView(spaceHorizontal(5));
+            row.addView(
+                    spaceHorizontal(5)
+            );
             row.addView(delete);
 
             item.addView(row);
             list.addView(item);
 
-            edit.setOnClickListener(v -> editClassDialog(index));
+            edit.setOnClickListener(
+                    v -> editClassDialog(index)
+            );
 
-            delete.setOnClickListener(v -> {
-                new AlertDialog.Builder(this)
-                        .setTitle("حذف الصف")
-                        .setMessage(
-                                "هل تريد حذف الصف:\n"
-                                        + className
-                                        + " ؟"
-                        )
-                        .setNegativeButton("إلغاء", null)
-                        .setPositiveButton("حذف", (dialog, which) -> {
-                            deleteClass(index);
-                        })
-                        .show();
-            });
+            delete.setOnClickListener(
+                    v -> {
+
+                        new AlertDialog.Builder(this)
+                                .setTitle(
+                                        "حذف الصف"
+                                )
+                                .setMessage(
+                                        "هل تريد حذف الصف:\n"
+                                                + className
+                                                + " ؟"
+                                )
+                                .setNegativeButton(
+                                        "إلغاء",
+                                        null
+                                )
+                                .setPositiveButton(
+                                        "حذف",
+                                        (dialog, which) ->
+                                                deleteClass(
+                                                        index
+                                                )
+                                )
+                                .show();
+                    }
+            );
         }
     }
 
-    private int countInClass(String className) {
+    private int countInClass(
+            String className
+    ) {
         int count = 0;
 
-        for (int i = 0; i < students.length(); i++) {
-            JSONObject student = students.optJSONObject(i);
+        for (int i = 0;
+             i < students.length();
+             i++) {
+
+            JSONObject student =
+                    students.optJSONObject(i);
 
             if (student != null
-                    && student.optString("className", "")
-                    .equals(className)) {
+                    && student.optString(
+                    "className",
+                    ""
+            ).equals(className)) {
+
                 count++;
             }
         }
@@ -1281,180 +1594,313 @@ public class MainActivity extends Activity {
     }
 
     private void addClassDialog() {
-        EditText input = input("اسم الصف");
+        EditText input =
+                input("اسم الصف");
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("إضافة صف جديد")
-                .setView(input)
-                .setNegativeButton("إلغاء", null)
-                .setPositiveButton("إضافة", null)
-                .create();
+        AlertDialog dialog =
+                new AlertDialog.Builder(this)
+                        .setTitle(
+                                "إضافة صف جديد"
+                        )
+                        .setView(input)
+                        .setNegativeButton(
+                                "إلغاء",
+                                null
+                        )
+                        .setPositiveButton(
+                                "إضافة",
+                                null
+                        )
+                        .create();
 
-        dialog.setOnShowListener(d -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                    .setOnClickListener(v -> {
+        dialog.setOnShowListener(
+                d -> {
 
-                        String name = input.getText()
-                                .toString()
-                                .trim();
+                    dialog.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                    ).setOnClickListener(
+                            v -> {
 
-                        if (name.isEmpty()) {
-                            input.setError("أدخل اسم الصف");
-                            return;
-                        }
+                                String name =
+                                        input.getText()
+                                                .toString()
+                                                .trim();
 
-                        for (int i = 0; i < classes.length(); i++) {
-                            if (classes.optString(i, "")
-                                    .equals(name)) {
-                                input.setError("هذا الصف موجود مسبقاً");
-                                return;
-                            }
-                        }
-
-                        classes.put(name);
-                        saveData();
-
-                        dialog.dismiss();
-                        showClasses();
-
-                        toast("تمت إضافة الصف");
-                    });
-        });
-
-        dialog.show();
-                    }
-    private void editClassDialog(int index) {
-        String current = classes.optString(index, "");
-
-        EditText input = input("اسم الصف");
-        input.setText(current);
-        input.setSelection(input.length());
-
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("تعديل الصف")
-                .setView(input)
-                .setNegativeButton("إلغاء", null)
-                .setPositiveButton("حفظ", null)
-                .create();
-
-        dialog.setOnShowListener(d -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                    .setOnClickListener(v -> {
-
-                        String newName = input.getText()
-                                .toString()
-                                .trim();
-
-                        if (newName.isEmpty()) {
-                            input.setError("أدخل اسم الصف");
-                            return;
-                        }
-
-                        for (int i = 0; i < classes.length(); i++) {
-                            if (i != index
-                                    && classes.optString(i, "")
-                                    .equals(newName)) {
-                                input.setError("هذا الصف موجود مسبقاً");
-                                return;
-                            }
-                        }
-
-                        String oldName = classes.optString(index, "");
-
-                        try {
-                            classes.put(index, newName);
-
-                            for (int i = 0; i < students.length(); i++) {
-                                JSONObject student =
-                                        students.optJSONObject(i);
-
-                                if (student != null
-                                        && student.optString(
-                                        "className", "")
-                                        .equals(oldName)) {
-
-                                    student.put("className", newName);
+                                if (name.isEmpty()) {
+                                    input.setError(
+                                            "أدخل اسم الصف"
+                                    );
+                                    return;
                                 }
+
+                                for (int i = 0;
+                                     i < classes.length();
+                                     i++) {
+
+                                    if (classes.optString(
+                                            i,
+                                            ""
+                                    ).equals(name)) {
+
+                                        input.setError(
+                                                "هذا الصف موجود مسبقاً"
+                                        );
+
+                                        return;
+                                    }
+                                }
+
+                                classes.put(name);
+
+                                saveData();
+
+                                dialog.dismiss();
+
+                                showClasses();
+
+                                toast(
+                                        "تمت إضافة الصف"
+                                );
                             }
-
-                            saveData();
-                            dialog.dismiss();
-                            showClasses();
-
-                            toast("تم تعديل الصف");
-
-                        } catch (Exception e) {
-                            toast("حدث خطأ أثناء تعديل الصف");
-                        }
-                    });
-        });
+                    );
+                }
+        );
 
         dialog.show();
     }
 
-    private void deleteClass(int index) {
-        String className = classes.optString(index, "");
+    private void editClassDialog(
+            int index
+    ) {
+        String current =
+                classes.optString(
+                        index,
+                        ""
+                );
+
+        EditText input =
+                input("اسم الصف");
+
+        input.setText(current);
+        input.setSelection(
+                input.length()
+        );
+
+        AlertDialog dialog =
+                new AlertDialog.Builder(this)
+                        .setTitle(
+                                "تعديل الصف"
+                        )
+                        .setView(input)
+                        .setNegativeButton(
+                                "إلغاء",
+                                null
+                        )
+                        .setPositiveButton(
+                                "حفظ",
+                                null
+                        )
+                        .create();
+
+        dialog.setOnShowListener(
+                d -> {
+
+                    dialog.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                    ).setOnClickListener(
+                            v -> {
+
+                                String newName =
+                                        input.getText()
+                                                .toString()
+                                                .trim();
+
+                                if (newName.isEmpty()) {
+                                    input.setError(
+                                            "أدخل اسم الصف"
+                                    );
+                                    return;
+                                }
+
+                                for (int i = 0;
+                                     i < classes.length();
+                                     i++) {
+
+                                    if (i != index
+                                            && classes.optString(
+                                            i,
+                                            ""
+                                    ).equals(newName)) {
+
+                                        input.setError(
+                                                "هذا الصف موجود مسبقاً"
+                                        );
+
+                                        return;
+                                    }
+                                }
+
+                                String oldName =
+                                        classes.optString(
+                                                index,
+                                                ""
+                                        );
+
+                                try {
+
+                                    classes.put(
+                                            index,
+                                            newName
+                                    );
+
+                                    for (int i = 0;
+                                         i < students.length();
+                                         i++) {
+
+                                        JSONObject student =
+                                                students.optJSONObject(i);
+
+                                        if (student != null
+                                                && student.optString(
+                                                "className",
+                                                ""
+                                        ).equals(oldName)) {
+
+                                            student.put(
+                                                    "className",
+                                                    newName
+                                            );
+                                        }
+                                    }
+
+                                    saveData();
+
+                                    dialog.dismiss();
+
+                                    showClasses();
+
+                                    toast(
+                                            "تم تعديل الصف"
+                                    );
+
+                                } catch (Exception e) {
+
+                                    toast(
+                                            "حدث خطأ أثناء تعديل الصف"
+                                    );
+                                }
+                            }
+                    );
+                }
+        );
+
+        dialog.show();
+    }
+
+    private void deleteClass(
+            int index
+    ) {
+        String className =
+                classes.optString(
+                        index,
+                        ""
+                );
 
         if (countInClass(className) > 0) {
+
             new AlertDialog.Builder(this)
-                    .setTitle("لا يمكن حذف الصف")
+                    .setTitle(
+                            "لا يمكن حذف الصف"
+                    )
                     .setMessage(
                             "يوجد طلاب مسجلون في هذا الصف.\n"
                                     + "انقل الطلاب إلى صف آخر أولاً."
                     )
-                    .setPositiveButton("حسناً", null)
+                    .setPositiveButton(
+                            "حسناً",
+                            null
+                    )
                     .show();
 
             return;
         }
 
-        JSONArray updated = new JSONArray();
+        JSONArray updated =
+                new JSONArray();
 
-        for (int i = 0; i < classes.length(); i++) {
+        for (int i = 0;
+             i < classes.length();
+             i++) {
+
             if (i != index) {
-                updated.put(classes.optString(i, ""));
+                updated.put(
+                        classes.optString(
+                                i,
+                                ""
+                        )
+                );
             }
         }
 
         classes = updated;
+
         saveData();
 
         showClasses();
-        toast("تم حذف الصف");
+
+        toast(
+                "تم حذف الصف"
+        );
     }
 
     private void showGrades() {
         prepareRoot();
 
-        LinearLayout page = content();
+        LinearLayout page =
+                content();
 
-        LinearLayout header = horizontal();
+        LinearLayout header =
+                horizontal();
 
-        TextView heading = title("إدخال الدرجات");
+        TextView heading =
+                title("إدخال الدرجات");
+
         header.addView(
                 heading,
-                new LinearLayout.LayoutParams(0, -2, 1)
+                new LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1
+                )
         );
 
         page.addView(header);
         page.addView(space(10));
 
-        TextView info = text(
-                "اختر الطالب ثم أدخل درجاته. "
-                        + "يمكن تعديل الدرجات في أي وقت.",
-                14,
-                GRAY
-        );
+        TextView info =
+                text(
+                        "اختر الطالب ثم أدخل درجاته.\n"
+                                + "يمكن تعديل الدرجات في أي وقت.",
+                        14,
+                        GRAY
+                );
 
         page.addView(info);
         page.addView(space(12));
 
-        LinearLayout list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout list =
+                new LinearLayout(this);
+
+        list.setOrientation(
+                LinearLayout.VERTICAL
+        );
 
         page.addView(list);
 
-        renderGradeList(list, "");
+        renderGradeList(
+                list,
+                ""
+        );
     }
 
     private void renderGradeList(
@@ -1464,64 +1910,87 @@ public class MainActivity extends Activity {
         list.removeAllViews();
 
         if (students.length() == 0) {
-            TextView empty = text(
-                    "لا يوجد طلاب حالياً.\n"
-                            + "أضف الطلاب أولاً من قسم إدارة الطلاب.",
-                    16,
-                    GRAY
+
+            TextView empty =
+                    text(
+                            "لا يوجد طلاب حالياً.\n"
+                                    + "أضف الطلاب أولاً من قسم إدارة الطلاب.",
+                            16,
+                            GRAY
+                    );
+
+            empty.setGravity(
+                    Gravity.CENTER
             );
 
-            empty.setGravity(Gravity.CENTER);
-            empty.setPadding(0, dp(40), 0, dp(40));
+            empty.setPadding(
+                    0,
+                    dp(40),
+                    0,
+                    dp(40)
+            );
 
             list.addView(empty);
+
             return;
         }
-
-        Spinner filter = spinner(classOptions());
 
         ArrayList<String> filters =
                 new ArrayList<>();
 
         filters.add("جميع الصفوف");
 
-        for (int i = 0; i < classes.length(); i++) {
-            filters.add(classes.optString(i, ""));
+        for (int i = 0;
+             i < classes.length();
+             i++) {
+
+            String value =
+                    classes.optString(
+                            i,
+                            ""
+                    );
+
+            if (!value.isEmpty()) {
+                filters.add(value);
+            }
         }
 
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(
-                        this,
-                        android.R.layout.simple_spinner_item,
-                        filters
-                );
-
-        adapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item
-        );
-
-        filter.setAdapter(adapter);
+        Spinner filter =
+                spinner(filters);
 
         if (classFilter != null
                 && !classFilter.isEmpty()) {
 
-            int position = filters.indexOf(classFilter);
+            int position =
+                    filters.indexOf(
+                            classFilter
+                    );
 
             if (position >= 0) {
-                filter.setSelection(position);
+                filter.setSelection(
+                        position
+                );
             }
         }
 
-        LinearLayout filterBox = card();
+        LinearLayout filterBox =
+                card();
 
-        TextView filterTitle = text(
-                "تصفية حسب الصف",
-                15,
-                DARK
+        TextView filterTitle =
+                text(
+                        "تصفية حسب الصف",
+                        15,
+                        DARK
+                );
+
+        filterBox.addView(
+                filterTitle
         );
 
-        filterBox.addView(filterTitle);
-        filterBox.addView(space(5));
+        filterBox.addView(
+                space(5)
+        );
+
         filterBox.addView(filter);
 
         list.addView(filterBox);
@@ -1539,7 +2008,8 @@ public class MainActivity extends Activity {
         String selected =
                 filter.getSelectedItem() == null
                         ? "جميع الصفوف"
-                        : filter.getSelectedItem().toString();
+                        : filter.getSelectedItem()
+                        .toString();
 
         renderGradeStudents(
                 studentsList,
@@ -1557,6 +2027,7 @@ public class MainActivity extends Activity {
                             int position,
                             long id
                     ) {
+
                         renderGradeStudents(
                                 studentsList,
                                 filters.get(position)
@@ -1580,7 +2051,10 @@ public class MainActivity extends Activity {
 
         int count = 0;
 
-        for (int i = 0; i < students.length(); i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
+
             JSONObject student =
                     students.optJSONObject(i);
 
@@ -1589,18 +2063,28 @@ public class MainActivity extends Activity {
             }
 
             String studentClass =
-                    student.optString("className", "");
+                    student.optString(
+                            "className",
+                            ""
+                    );
 
-            if (!selectedClass.equals("جميع الصفوف")
-                    && !studentClass.equals(selectedClass)) {
+            if (!selectedClass.equals(
+                    "جميع الصفوف"
+            )
+                    && !studentClass.equals(
+                    selectedClass
+            )) {
+
                 continue;
             }
 
             count++;
 
-            LinearLayout item = card();
+            LinearLayout item =
+                    card();
 
-            LinearLayout row = horizontal();
+            LinearLayout row =
+                    horizontal();
 
             LinearLayout details =
                     new LinearLayout(this);
@@ -1609,28 +2093,32 @@ public class MainActivity extends Activity {
                     LinearLayout.VERTICAL
             );
 
-            TextView name = text(
-                    student.optString(
-                            "name",
-                            "بدون اسم"
-                    ),
-                    17,
-                    DARK
-            );
+            TextView name =
+                    text(
+                            student.optString(
+                                    "name",
+                                    "بدون اسم"
+                            ),
+                            17,
+                            DARK
+                    );
 
             name.setTypeface(
                     Typeface.DEFAULT,
                     Typeface.BOLD
             );
 
-            TextView cls = text(
-                    "الصف: "
-                            + (studentClass.isEmpty()
-                            ? "غير محدد"
-                            : studentClass),
-                    13,
-                    GRAY
-            );
+            TextView cls =
+                    text(
+                            "الصف: "
+                                    + (
+                                    studentClass.isEmpty()
+                                            ? "غير محدد"
+                                            : studentClass
+                            ),
+                            13,
+                            GRAY
+                    );
 
             details.addView(name);
             details.addView(cls);
@@ -1640,50 +2128,12 @@ public class MainActivity extends Activity {
                     new LinearLayout.LayoutParams(
                             0,
                             -2,
-                            1
-                    )
-            );
-
-            Button edit =
-                    smallButton(
-                            "الدرجات",
-                            BLUE
-                    );
-
-            row.addView(edit);
-
-            item.addView(row);
-            list.addView(item);
-
-            edit.setOnClickListener(
-                    v -> showGradeEditor(student)
-            );
-        }
-
-        if (count == 0) {
-            TextView empty = text(
-                    "لا يوجد طلاب في الصف المحدد.",
-                    15,
-                    GRAY
-            );
-
-            empty.setGravity(Gravity.CENTER);
-            empty.setPadding(
-                    0,
-                    dp(25),
-                    0,
-                    dp(25)
-            );
-
-            list.addView(empty);
-        }
-    }
-
-    private EditText gradeInput(
+                                private EditText gradeInput(
             String hint,
             double value
     ) {
-        EditText input = input(hint);
+        EditText input =
+                input(hint);
 
         input.setInputType(
                 android.text.InputType.TYPE_CLASS_NUMBER
@@ -1691,8 +2141,13 @@ public class MainActivity extends Activity {
         );
 
         if (value > 0) {
-            input.setText(format(value));
-            input.setSelection(input.length());
+            input.setText(
+                    format(value)
+            );
+
+            input.setSelection(
+                    input.length()
+            );
         }
 
         return input;
@@ -1702,9 +2157,10 @@ public class MainActivity extends Activity {
             EditText input
     ) {
         try {
-            String value = input.getText()
-                    .toString()
-                    .trim();
+            String value =
+                    input.getText()
+                            .toString()
+                            .trim();
 
             if (value.isEmpty()) {
                 return 0;
@@ -1731,7 +2187,8 @@ public class MainActivity extends Activity {
     private void showGradeEditor(
             JSONObject student
     ) {
-        ScrollView scroll = new ScrollView(this);
+        ScrollView scroll =
+                new ScrollView(this);
 
         LinearLayout form =
                 new LinearLayout(this);
@@ -1749,14 +2206,15 @@ public class MainActivity extends Activity {
 
         scroll.addView(form);
 
-        TextView studentName = text(
-                student.optString(
-                        "name",
-                        "بدون اسم"
-                ),
-                20,
-                DARK
-        );
+        TextView studentName =
+                text(
+                        student.optString(
+                                "name",
+                                "بدون اسم"
+                        ),
+                        20,
+                        DARK
+                );
 
         studentName.setTypeface(
                 Typeface.DEFAULT,
@@ -1766,47 +2224,65 @@ public class MainActivity extends Activity {
         form.addView(studentName);
         form.addView(space(5));
 
-        TextView studentClass = text(
-                "الصف: "
-                        + student.optString(
-                        "className",
-                        "غير محدد"
-                ),
-                14,
-                GRAY
-        );
+        TextView studentClass =
+                text(
+                        "الصف: "
+                                + student.optString(
+                                "className",
+                                "غير محدد"
+                        ),
+                        14,
+                        GRAY
+                );
 
         form.addView(studentClass);
         form.addView(space(15));
 
-        TextView note = text(
-                "الدرجات من 0 إلى 100",
-                13,
-                GRAY
-        );
+        TextView note =
+                text(
+                        "الدرجات من 0 إلى 100",
+                        13,
+                        GRAY
+                );
 
         form.addView(note);
         form.addView(space(8));
 
-        EditText monthly = gradeInput(
-                "درجة الشهرية",
-                student.optDouble("monthly", 0)
-        );
+        EditText monthly =
+                gradeInput(
+                        "درجة الشهرية",
+                        student.optDouble(
+                                "monthly",
+                                0
+                        )
+                );
 
-        EditText mid = gradeInput(
-                "درجة نصف السنة",
-                student.optDouble("mid", 0)
-        );
+        EditText mid =
+                gradeInput(
+                        "درجة نصف السنة",
+                        student.optDouble(
+                                "mid",
+                                0
+                        )
+                );
 
-        EditText second = gradeInput(
-                "درجة الشهر الثاني",
-                student.optDouble("second", 0)
-        );
+        EditText second =
+                gradeInput(
+                        "درجة الشهر الثاني",
+                        student.optDouble(
+                                "second",
+                                0
+                        )
+                );
 
-        EditText finalGrade = gradeInput(
-                "الدرجة النهائية",
-                student.optDouble("final", 0)
-        );
+        EditText finalGrade =
+                gradeInput(
+                        "الدرجة النهائية",
+                        student.optDouble(
+                                "final",
+                                0
+                        )
+                );
 
         form.addView(monthly);
         form.addView(space(8));
@@ -1820,12 +2296,15 @@ public class MainActivity extends Activity {
         form.addView(finalGrade);
         form.addView(space(15));
 
-        TextView preview = text(
-                "المعدل: "
-                        + format(average(student)),
-                16,
-                BLUE
-        );
+        TextView preview =
+                text(
+                        "المعدل: "
+                                + format(
+                                average(student)
+                        ),
+                        17,
+                        BLUE
+                );
 
         preview.setTypeface(
                 Typeface.DEFAULT,
@@ -1834,35 +2313,68 @@ public class MainActivity extends Activity {
 
         form.addView(preview);
 
-        View.OnFocusChangeListener update =
-                (v, hasFocus) -> {
-                    if (!hasFocus) {
-                        try {
-                            double avg =
-                                    (grade(monthly)
-                                            + grade(mid)
-                                            + grade(second)
-                                            + grade(finalGrade))
-                                            / 4.0;
+        TextWatcher watcher =
+                new TextWatcher() {
 
-                            preview.setText(
-                                    "المعدل: "
-                                            + format(avg)
-                            );
+                    @Override
+                    public void beforeTextChanged(
+                            CharSequence s,
+                            int start,
+                            int count,
+                            int after
+                    ) {
+                    }
 
-                        } catch (Exception ignored) {
-                        }
+                    @Override
+                    public void onTextChanged(
+                            CharSequence s,
+                            int start,
+                            int before,
+                            int count
+                    ) {
+
+                        double avg =
+                                (
+                                        grade(monthly)
+                                                + grade(mid)
+                                                + grade(second)
+                                                + grade(finalGrade)
+                                ) / 4.0;
+
+                        preview.setText(
+                                "المعدل: "
+                                        + format(avg)
+                        );
+                    }
+
+                    @Override
+                    public void afterTextChanged(
+                            Editable s
+                    ) {
                     }
                 };
 
-        monthly.setOnFocusChangeListener(update);
-        mid.setOnFocusChangeListener(update);
-        second.setOnFocusChangeListener(update);
-        finalGrade.setOnFocusChangeListener(update);
+        monthly.addTextChangedListener(
+                watcher
+        );
+
+        mid.addTextChangedListener(
+                watcher
+        );
+
+        second.addTextChangedListener(
+                watcher
+        );
+
+        finalGrade.addTextChangedListener(
+                watcher
+        );
 
         AlertDialog dialog =
                 new AlertDialog.Builder(this)
-                        .setTitle("درجات الطالب")
+                        .setTitle(
+                                "درجات الطالب"
+                        )
                         .setView(scroll)
                         .setNegativeButton(
                                 "إلغاء",
@@ -1874,63 +2386,86 @@ public class MainActivity extends Activity {
                         )
                         .create();
 
-        dialog.setOnShowListener(d -> {
-            dialog.getButton(
-                    AlertDialog.BUTTON_POSITIVE
-            ).setOnClickListener(v -> {
+        dialog.setOnShowListener(
+                d -> {
 
-                try {
-                    student.put(
-                            "monthly",
-                            grade(monthly)
-                    );
+                    dialog.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                    ).setOnClickListener(
+                            v -> {
 
-                    student.put(
-                            "mid",
-                            grade(mid)
-                    );
+                                try {
 
-                    student.put(
-                            "second",
-                            grade(second)
-                    );
+                                    student.put(
+                                            "monthly",
+                                            grade(monthly)
+                                    );
 
-                    student.put(
-                            "final",
-                            grade(finalGrade)
-                    );
+                                    student.put(
+                                            "mid",
+                                            grade(mid)
+                                    );
 
-                    saveData();
+                                    student.put(
+                                            "second",
+                                            grade(second)
+                                    );
 
-                    dialog.dismiss();
+                                    student.put(
+                                            "final",
+                                            grade(finalGrade)
+                                    );
 
-                    showGrades();
+                                    saveData();
 
-                    toast(
-                            "تم حفظ درجات الطالب"
-                    );
+                                    dialog.dismiss();
 
-                } catch (Exception e) {
-                    toast(
-                            "حدث خطأ أثناء حفظ الدرجات"
+                                    showGrades();
+
+                                    toast(
+                                            "تم حفظ درجات الطالب"
+                                    );
+
+                                } catch (Exception e) {
+
+                                    toast(
+                                            "حدث خطأ أثناء حفظ الدرجات"
+                                    );
+                                }
+                            }
                     );
                 }
-            });
-        });
+        );
 
         dialog.show();
-    }    private double average(JSONObject student) {
+    }
+
+    private double average(
+            JSONObject student
+    ) {
         double monthly =
-                student.optDouble("monthly", 0);
+                student.optDouble(
+                        "monthly",
+                        0
+                );
 
         double mid =
-                student.optDouble("mid", 0);
+                student.optDouble(
+                        "mid",
+                        0
+                );
 
         double second =
-                student.optDouble("second", 0);
+                student.optDouble(
+                        "second",
+                        0
+                );
 
         double finalGrade =
-                student.optDouble("final", 0);
+                student.optDouble(
+                        "final",
+                        0
+                );
 
         return (
                 monthly
@@ -1940,9 +2475,13 @@ public class MainActivity extends Activity {
         ) / 4.0;
     }
 
-    private String format(double value) {
+    private String format(
+            double value
+    ) {
         if (value == (long) value) {
-            return String.valueOf((long) value);
+            return String.valueOf(
+                    (long) value
+            );
         }
 
         return String.format(
@@ -1952,20 +2491,19 @@ public class MainActivity extends Activity {
         );
     }
 
-    private boolean hasGrades(JSONObject student) {
-        return student.has("monthly")
-                || student.has("mid")
-                || student.has("second")
-                || student.has("final");
+    private String result(
+            double average
+    ) {
+        if (average >= 50) {
+            return "ناجح";
+        }
+
+        return "راسب";
     }
 
-    private String result(double average) {
-        return average >= 50
-                ? "ناجح"
-                : "راسب";
-    }
-
-    private String gradeText(double average) {
+    private String gradeText(
+            double average
+    ) {
         if (average >= 90) {
             return "ممتاز";
         }
@@ -1992,28 +2530,21 @@ public class MainActivity extends Activity {
     private void showRecords() {
         prepareRoot();
 
-        LinearLayout page = content();
+        LinearLayout page =
+                content();
 
-        LinearLayout header = horizontal();
+        TextView heading =
+                title("سجل الدرجات");
 
-        TextView heading = title("سجل الدرجات");
-        header.addView(
-                heading,
-                new LinearLayout.LayoutParams(
-                        0,
-                        -2,
-                        1
-                )
-        );
+        page.addView(heading);
+        page.addView(space(8));
 
-        page.addView(header);
-        page.addView(space(10));
-
-        TextView description = text(
-                "عرض شامل لدرجات جميع الطلاب ونتائجهم.",
-                14,
-                GRAY
-        );
+        TextView description =
+                text(
+                        "عرض شامل لدرجات جميع الطلاب ونتائجهم.",
+                        14,
+                        GRAY
+                );
 
         page.addView(description);
         page.addView(space(12));
@@ -2036,13 +2567,18 @@ public class MainActivity extends Activity {
         list.removeAllViews();
 
         if (students.length() == 0) {
-            TextView empty = text(
-                    "لا يوجد طلاب لعرض السجل.",
-                    16,
-                    GRAY
+
+            TextView empty =
+                    text(
+                            "لا يوجد طلاب لعرض السجل.",
+                            16,
+                            GRAY
+                    );
+
+            empty.setGravity(
+                    Gravity.CENTER
             );
 
-            empty.setGravity(Gravity.CENTER);
             empty.setPadding(
                     0,
                     dp(35),
@@ -2051,10 +2587,14 @@ public class MainActivity extends Activity {
             );
 
             list.addView(empty);
+
             return;
         }
 
-        for (int i = 0; i < students.length(); i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
+
             JSONObject student =
                     students.optJSONObject(i);
 
@@ -2062,18 +2602,21 @@ public class MainActivity extends Activity {
                 continue;
             }
 
-            double avg = average(student);
+            double avg =
+                    average(student);
 
-            LinearLayout item = card();
+            LinearLayout item =
+                    card();
 
-            TextView name = text(
-                    student.optString(
-                            "name",
-                            "بدون اسم"
-                    ),
-                    18,
-                    DARK
-            );
+            TextView name =
+                    text(
+                            student.optString(
+                                    "name",
+                                    "بدون اسم"
+                            ),
+                            18,
+                            DARK
+                    );
 
             name.setTypeface(
                     Typeface.DEFAULT,
@@ -2082,66 +2625,71 @@ public class MainActivity extends Activity {
 
             item.addView(name);
 
-            TextView cls = text(
-                    "الصف: "
-                            + student.optString(
-                            "className",
-                            "غير محدد"
-                    ),
-                    14,
-                    GRAY
-            );
+            TextView cls =
+                    text(
+                            "الصف: "
+                                    + student.optString(
+                                    "className",
+                                    "غير محدد"
+                            ),
+                            14,
+                            GRAY
+                    );
 
             item.addView(cls);
             item.addView(space(8));
 
-            TextView grades = text(
-                    "الشهرية: "
-                            + format(
-                            student.optDouble(
-                                    "monthly",
-                                    0
+            TextView grades =
+                    text(
+                            "الشهرية: "
+                                    + format(
+                                    student.optDouble(
+                                            "monthly",
+                                            0
+                                    )
                             )
-                    )
-                            + "    |    نصف السنة: "
-                            + format(
-                            student.optDouble(
-                                    "mid",
-                                    0
+                                    + "    |    نصف السنة: "
+                                    + format(
+                                    student.optDouble(
+                                            "mid",
+                                            0
+                                    )
                             )
-                    )
-                            + "\n"
-                            + "الشهر الثاني: "
-                            + format(
-                            student.optDouble(
-                                    "second",
-                                    0
+                                    + "\n"
+                                    + "الشهر الثاني: "
+                                    + format(
+                                    student.optDouble(
+                                            "second",
+                                            0
+                                    )
                             )
-                    )
-                            + "    |    النهائية: "
-                            + format(
-                            student.optDouble(
-                                    "final",
-                                    0
-                            )
-                    ),
-                    14,
-                    DARK
-            );
+                                    + "    |    النهائية: "
+                                    + format(
+                                    student.optDouble(
+                                            "final",
+                                            0
+                                    )
+                            ),
+                            14,
+                            DARK
+                    );
 
             item.addView(grades);
             item.addView(space(8));
 
-            TextView resultText = text(
-                    "المعدل: "
-                            + format(avg)
-                            + "  —  "
-                            + gradeText(avg)
-                            + "  —  "
-                            + result(avg),
-                    15,
-                    avg >= 50 ? GREEN : RED
-            );
+            TextView resultText =
+                    text(
+                            "المعدل: "
+                                    + format(avg)
+                                    + "  —  "
+                                    + gradeText(avg)
+                                    + "  —  "
+                                    + result(avg),
+                            15,
+                            avg >= 50
+                                    ? GREEN
+                                    : RED
+                    );
 
             resultText.setTypeface(
                     Typeface.DEFAULT,
@@ -2157,7 +2705,8 @@ public class MainActivity extends Activity {
     private void showRanking() {
         prepareRoot();
 
-        LinearLayout page = content();
+        LinearLayout page =
+                content();
 
         TextView heading =
                 title("ترتيب الطلاب");
@@ -2165,11 +2714,12 @@ public class MainActivity extends Activity {
         page.addView(heading);
         page.addView(space(8));
 
-        TextView description = text(
-                "ترتيب الطلاب من الأعلى معدلًا إلى الأقل.",
-                14,
-                GRAY
-        );
+        TextView description =
+                text(
+                        "ترتيب الطلاب من الأعلى معدلًا إلى الأقل.",
+                        14,
+                        GRAY
+                );
 
         page.addView(description);
         page.addView(space(12));
@@ -2177,7 +2727,10 @@ public class MainActivity extends Activity {
         ArrayList<JSONObject> ranking =
                 new ArrayList<>();
 
-        for (int i = 0; i < students.length(); i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
+
             JSONObject student =
                     students.optJSONObject(i);
 
@@ -2195,6 +2748,7 @@ public class MainActivity extends Activity {
         );
 
         if (ranking.isEmpty()) {
+
             page.addView(
                     text(
                             "لا يوجد طلاب حالياً.",
@@ -2209,34 +2763,38 @@ public class MainActivity extends Activity {
         int position = 1;
 
         for (JSONObject student : ranking) {
-            double avg = average(student);
 
-            LinearLayout item = card();
+            double avg =
+                    average(student);
 
-            LinearLayout row = horizontal();
+            LinearLayout item =
+                    card();
 
-            TextView number = text(
-                    "#" + position,
-                    20,
-                    BLUE
+            LinearLayout row =
+                    horizontal();
+
+            TextView number =
+                    text(
+                            "#" + position,
+                            20,
+                            BLUE
+                    );
+
+            number.setGravity(
+                    Gravity.CENTER
             );
-
-            number.setGravity(Gravity.CENTER);
 
             number.setTypeface(
                     Typeface.DEFAULT,
                     Typeface.BOLD
             );
 
-            LinearLayout.LayoutParams numberParams =
+            row.addView(
+                    number,
                     new LinearLayout.LayoutParams(
                             dp(55),
                             dp(50)
-                    );
-
-            row.addView(
-                    number,
-                    numberParams
+                    )
             );
 
             LinearLayout details =
@@ -2246,28 +2804,30 @@ public class MainActivity extends Activity {
                     LinearLayout.VERTICAL
             );
 
-            TextView name = text(
-                    student.optString(
-                            "name",
-                            "بدون اسم"
-                    ),
-                    17,
-                    DARK
-            );
+            TextView name =
+                    text(
+                            student.optString(
+                                    "name",
+                                    "بدون اسم"
+                            ),
+                            17,
+                            DARK
+                    );
 
             name.setTypeface(
                     Typeface.DEFAULT,
                     Typeface.BOLD
             );
 
-            TextView cls = text(
-                    student.optString(
-                            "className",
-                            "غير محدد"
-                    ),
-                    13,
-                    GRAY
-            );
+            TextView cls =
+                    text(
+                            student.optString(
+                                    "className",
+                                    "غير محدد"
+                            ),
+                            13,
+                            GRAY
+                    );
 
             details.addView(name);
             details.addView(cls);
@@ -2281,21 +2841,22 @@ public class MainActivity extends Activity {
                     )
             );
 
-            TextView avgText = text(
-                    format(avg),
-                    20,
-                    avg >= 50
-                            ? GREEN
-                            : RED
+            TextView avgText =
+                    text(
+                            format(avg),
+                            20,
+                            avg >= 50
+                                    ? GREEN
+                                    : RED
+                    );
+
+            avgText.setGravity(
+                    Gravity.CENTER
             );
 
             avgText.setTypeface(
                     Typeface.DEFAULT,
                     Typeface.BOLD
-            );
-
-            avgText.setGravity(
-                    Gravity.CENTER
             );
 
             row.addView(
@@ -2311,9 +2872,7 @@ public class MainActivity extends Activity {
 
             position++;
         }
-    }
-
-    private void showClassReport() {
+    }    private void showClassReport() {
         prepareRoot();
 
         LinearLayout page = content();
@@ -2332,21 +2891,24 @@ public class MainActivity extends Activity {
                             GRAY
                     )
             );
-
             return;
         }
 
-        for (int i = 0; i < classes.length(); i++) {
+        for (int i = 0;
+             i < classes.length();
+             i++) {
+
             String className =
                     classes.optString(i, "");
 
             LinearLayout item = card();
 
-            TextView name = text(
-                    className,
-                    18,
-                    DARK
-            );
+            TextView name =
+                    text(
+                            className,
+                            18,
+                            DARK
+                    );
 
             name.setTypeface(
                     Typeface.DEFAULT,
@@ -2362,14 +2924,15 @@ public class MainActivity extends Activity {
             double avg =
                     classAverage(className);
 
-            TextView info = text(
-                    "عدد الطلاب: "
-                            + count
-                            + "\nمتوسط الصف: "
-                            + format(avg),
-                    14,
-                    GRAY
-            );
+            TextView info =
+                    text(
+                            "عدد الطلاب: "
+                                    + count
+                                    + "\nمتوسط الصف: "
+                                    + format(avg),
+                            14,
+                            GRAY
+                    );
 
             item.addView(info);
             item.addView(space(8));
@@ -2398,7 +2961,10 @@ public class MainActivity extends Activity {
         double total = 0;
         int count = 0;
 
-        for (int i = 0; i < students.length(); i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
+
             JSONObject student =
                     students.optJSONObject(i);
 
@@ -2428,7 +2994,8 @@ public class MainActivity extends Activity {
     ) {
         prepareRoot();
 
-        LinearLayout page = content();
+        LinearLayout page =
+                content();
 
         TextView heading =
                 title("تقرير " + className);
@@ -2436,24 +3003,24 @@ public class MainActivity extends Activity {
         page.addView(heading);
         page.addView(space(8));
 
-        int count = countInClass(
-                className
-        );
+        int count =
+                countInClass(className);
 
-        double avg = classAverage(
-                className
-        );
+        double avg =
+                classAverage(className);
 
-        LinearLayout summary = card();
+        LinearLayout summary =
+                card();
 
-        TextView summaryText = text(
-                "عدد الطلاب: "
-                        + count
-                        + "\nمتوسط الصف: "
-                        + format(avg),
-                17,
-                DARK
-        );
+        TextView summaryText =
+                text(
+                        "عدد الطلاب: "
+                                + count
+                                + "\nمتوسط الصف: "
+                                + format(avg),
+                        17,
+                        DARK
+                );
 
         summaryText.setTypeface(
                 Typeface.DEFAULT,
@@ -2461,10 +3028,14 @@ public class MainActivity extends Activity {
         );
 
         summary.addView(summaryText);
+
         page.addView(summary);
         page.addView(space(10));
 
-        for (int i = 0; i < students.length(); i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
+
             JSONObject student =
                     students.optJSONObject(i);
 
@@ -2482,16 +3053,18 @@ public class MainActivity extends Activity {
             double studentAverage =
                     average(student);
 
-            LinearLayout item = card();
+            LinearLayout item =
+                    card();
 
-            TextView name = text(
-                    student.optString(
-                            "name",
-                            "بدون اسم"
-                    ),
-                    16,
-                    DARK
-            );
+            TextView name =
+                    text(
+                            student.optString(
+                                    "name",
+                                    "بدون اسم"
+                            ),
+                            16,
+                            DARK
+                    );
 
             name.setTypeface(
                     Typeface.DEFAULT,
@@ -2501,29 +3074,33 @@ public class MainActivity extends Activity {
             item.addView(name);
             item.addView(space(5));
 
-            TextView resultView = text(
-                    "المعدل: "
-                            + format(studentAverage)
-                            + "\nالتقدير: "
-                            + gradeText(
-                            studentAverage
-                    )
-                            + "\nالنتيجة: "
-                            + result(studentAverage),
-                    14,
-                    studentAverage >= 50
-                            ? GREEN
-                            : RED
-            );
+            TextView resultView =
+                    text(
+                            "المعدل: "
+                                    + format(studentAverage)
+                                    + "\nالتقدير: "
+                                    + gradeText(
+                                    studentAverage
+                            )
+                                    + "\nالنتيجة: "
+                                    + result(studentAverage),
+                            14,
+                            studentAverage >= 50
+                                    ? GREEN
+                                    : RED
+                    );
 
             item.addView(resultView);
 
             page.addView(item);
         }
-    }    private void showReport() {
+    }
+
+    private void showReport() {
         prepareRoot();
 
-        LinearLayout page = content();
+        LinearLayout page =
+                content();
 
         TextView heading =
                 title("التقرير العام");
@@ -2538,7 +3115,10 @@ public class MainActivity extends Activity {
         int failed = 0;
         double totalAverage = 0;
 
-        for (int i = 0; i < students.length(); i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
+
             JSONObject student =
                     students.optJSONObject(i);
 
@@ -2546,7 +3126,8 @@ public class MainActivity extends Activity {
                 continue;
             }
 
-            double avg = average(student);
+            double avg =
+                    average(student);
 
             totalAverage += avg;
 
@@ -2560,24 +3141,20 @@ public class MainActivity extends Activity {
         double generalAverage =
                 totalStudents == 0
                         ? 0
-                        : totalAverage / totalStudents;
+                        : totalAverage
+                        / totalStudents;
 
-        LinearLayout stats = new LinearLayout(this);
-        stats.setOrientation(
-                LinearLayout.VERTICAL
-        );
-
-        stats.addView(
+        page.addView(
                 statCard(
                         "إجمالي الطلاب",
-                        String.valueOf(totalStudents),
+                        String.valueOf(
+                                totalStudents
+                        ),
                         BLUE
                 )
         );
 
-        stats.addView(space(8));
-
-        stats.addView(
+        page.addView(
                 statCard(
                         "الناجحون",
                         String.valueOf(passed),
@@ -2585,9 +3162,7 @@ public class MainActivity extends Activity {
                 )
         );
 
-        stats.addView(space(8));
-
-        stats.addView(
+        page.addView(
                 statCard(
                         "الراسبون",
                         String.valueOf(failed),
@@ -2595,9 +3170,7 @@ public class MainActivity extends Activity {
                 )
         );
 
-        stats.addView(space(8));
-
-        stats.addView(
+        page.addView(
                 statCard(
                         "المعدل العام",
                         format(generalAverage),
@@ -2605,18 +3178,18 @@ public class MainActivity extends Activity {
                 )
         );
 
-        page.addView(stats);
         page.addView(space(12));
+
+        double successRate =
+                totalStudents == 0
+                        ? 0
+                        : (passed * 100.0)
+                        / totalStudents;
 
         TextView details =
                 text(
                         "نسبة النجاح: "
-                                + format(
-                                totalStudents == 0
-                                        ? 0
-                                        : (passed * 100.0)
-                                        / totalStudents
-                        )
+                                + format(successRate)
                                 + "%",
                         16,
                         DARK
@@ -2632,8 +3205,11 @@ public class MainActivity extends Activity {
         );
     }
 
-    private View cardWithView(View child) {
-        LinearLayout container = card();
+    private View cardWithView(
+            View child
+    ) {
+        LinearLayout container =
+                card();
 
         container.addView(child);
 
@@ -2643,7 +3219,8 @@ public class MainActivity extends Activity {
     private void showBackup() {
         prepareRoot();
 
-        LinearLayout page = content();
+        LinearLayout page =
+                content();
 
         TextView heading =
                 title("النسخ الاحتياطي");
@@ -2665,19 +3242,17 @@ public class MainActivity extends Activity {
 
         Button export =
                 button(
-                        "مشاركة نسخة احتياطية",
+                        "💾 مشاركة نسخة احتياطية",
                         BLUE
                 );
 
-        page.addView(export);
-        page.addView(space(10));
-
         Button summary =
                 button(
-                        "مشاركة ملخص الدرجات",
+                        "📋 مشاركة ملخص الدرجات",
                         GREEN
                 );
 
+        page.addView(export);
         page.addView(summary);
 
         export.setOnClickListener(
@@ -2709,11 +3284,17 @@ public class MainActivity extends Activity {
                 "=== الصفوف ===\n"
         );
 
-        for (int i = 0; i < classes.length(); i++) {
+        for (int i = 0;
+             i < classes.length();
+             i++) {
+
             data.append(
                     i + 1
                             + ". "
-                            + classes.optString(i, "")
+                            + classes.optString(
+                            i,
+                            ""
+                    )
                             + "\n"
             );
         }
@@ -2722,7 +3303,10 @@ public class MainActivity extends Activity {
                 "\n=== الطلاب ===\n"
         );
 
-        for (int i = 0; i < students.length(); i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
+
             JSONObject student =
                     students.optJSONObject(i);
 
@@ -2801,7 +3385,9 @@ public class MainActivity extends Activity {
                     )
             );
 
-            data.append("\n--------------------\n");
+            data.append(
+                    "\n--------------------\n"
+            );
         }
 
         return data.toString();
@@ -2819,7 +3405,10 @@ public class MainActivity extends Activity {
                 "الأستاذ أمير محمد\n\n"
         );
 
-        for (int i = 0; i < students.length(); i++) {
+        for (int i = 0;
+             i < students.length();
+             i++) {
+
             JSONObject student =
                     students.optJSONObject(i);
 
@@ -2861,8 +3450,11 @@ public class MainActivity extends Activity {
         return data.toString();
     }
 
-    private void shareText(String value) {
+    private void shareText(
+            String value
+    ) {
         try {
+
             Intent intent =
                     new Intent(
                             Intent.ACTION_SEND
@@ -2885,6 +3477,7 @@ public class MainActivity extends Activity {
             );
 
         } catch (Exception e) {
+
             toast(
                     "تعذر فتح المشاركة"
             );
@@ -2894,7 +3487,8 @@ public class MainActivity extends Activity {
     private void showSettings() {
         prepareRoot();
 
-        LinearLayout page = content();
+        LinearLayout page =
+                content();
 
         TextView heading =
                 title("الإعدادات");
@@ -2902,7 +3496,8 @@ public class MainActivity extends Activity {
         page.addView(heading);
         page.addView(space(10));
 
-        LinearLayout appInfo = card();
+        LinearLayout appInfo =
+                card();
 
         TextView info =
                 text(
@@ -2919,34 +3514,29 @@ public class MainActivity extends Activity {
         );
 
         appInfo.addView(info);
-
         page.addView(appInfo);
         page.addView(space(12));
 
         Button report =
                 button(
-                        "التقرير العام",
+                        "📊 التقرير العام",
                         BLUE
                 );
-
-        page.addView(report);
-        page.addView(space(8));
 
         Button classReports =
                 button(
-                        "تقارير الصفوف",
-                        BLUE
+                        "📚 تقارير الصفوف",
+                        DARK_BLUE
                 );
-
-        page.addView(classReports);
-        page.addView(space(8));
 
         Button clear =
                 button(
-                        "حذف جميع البيانات",
+                        "🗑️ حذف جميع البيانات",
                         RED
                 );
 
+        page.addView(report);
+        page.addView(classReports);
         page.addView(clear);
         page.addView(space(15));
 
@@ -2978,7 +3568,9 @@ public class MainActivity extends Activity {
 
     private void confirmClearData() {
         new AlertDialog.Builder(this)
-                .setTitle("حذف جميع البيانات")
+                .setTitle(
+                        "حذف جميع البيانات"
+                )
                 .setMessage(
                         "تحذير!\n\n"
                                 + "سيتم حذف جميع الطلاب "
@@ -3011,7 +3603,9 @@ public class MainActivity extends Activity {
                 .show();
     }
 
-    private void toast(String message) {
+    private void toast(
+            String message
+    ) {
         Toast.makeText(
                 this,
                 message,
@@ -3023,4 +3617,4 @@ public class MainActivity extends Activity {
     public void onBackPressed() {
         showHome();
     }
-}
+                    }
