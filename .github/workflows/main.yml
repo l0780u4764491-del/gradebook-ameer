@@ -1,0 +1,243 @@
+name: Build GradeBook Android
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Create Android project
+        run: |
+          mkdir -p app/src/main/java/com/ameer/gradebook
+          mkdir -p app/src/main/res/layout
+          mkdir -p app/src/main/res/values
+
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+
+          rootProject.name = "GradeBook"
+          include(":app")
+          EOF
+
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.6.1' apply false
+          }
+          EOF
+
+          cat > app/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application'
+          }
+
+          android {
+              namespace 'com.ameer.gradebook'
+              compileSdk 35
+
+              defaultConfig {
+                  applicationId 'com.ameer.gradebook'
+                  minSdk 23
+                  targetSdk 35
+                  versionCode 1
+                  versionName '1.0'
+              }
+          }
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+              <application
+                  android:theme="@style/AppTheme"
+                  android:label="سجل درجات الاجتماعيات"
+                  android:allowBackup="true"
+                  android:supportsRtl="true">
+
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true">
+
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+
+                  </activity>
+
+              </application>
+
+          </manifest>
+          EOF
+
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+
+              <style name="AppTheme"
+                  parent="android:style/Theme.Material.Light.NoActionBar">
+
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:windowLightStatusBar">false</item>
+                  <item name="android:navigationBarColor">#101827</item>
+
+              </style>
+
+          </resources>
+          EOF
+
+          cat > app/src/main/res/layout/activity_main.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <ScrollView
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#F4F7FB">
+
+              <LinearLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical"
+                  android:padding="24dp"
+                  android:gravity="center_horizontal">
+
+                  <TextView
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="سجل درجات الاجتماعيات"
+                      android:textSize="26sp"
+                      android:textStyle="bold"
+                      android:textColor="#101827"
+                      android:layout_marginTop="30dp"/>
+
+                  <TextView
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="الأستاذ أمير محمد"
+                      android:textSize="20sp"
+                      android:textColor="#425466"
+                      android:layout_marginTop="8dp"/>
+
+                  <TextView
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="نظام إدارة درجات الطلاب"
+                      android:textSize="15sp"
+                      android:textColor="#718096"
+                      android:layout_marginTop="4dp"/>
+
+                  <Button
+                      android:id="@+id/studentsButton"
+                      android:layout_width="match_parent"
+                      android:layout_height="60dp"
+                      android:text="إدارة الطلاب"
+                      android:textSize="18sp"
+                      android:layout_marginTop="45dp"/>
+
+                  <Button
+                      android:id="@+id/classesButton"
+                      android:layout_width="match_parent"
+                      android:layout_height="60dp"
+                      android:text="الشعب الدراسية"
+                      android:textSize="18sp"
+                      android:layout_marginTop="14dp"/>
+
+                  <Button
+                      android:id="@+id/gradesButton"
+                      android:layout_width="match_parent"
+                      android:layout_height="60dp"
+                      android:text="إدخال الدرجات"
+                      android:textSize="18sp"
+                      android:layout_marginTop="14dp"/>
+
+                  <Button
+                      android:id="@+id/printButton"
+                      android:layout_width="match_parent"
+                      android:layout_height="60dp"
+                      android:text="طباعة السجلات"
+                      android:textSize="18sp"
+                      android:layout_marginTop="14dp"/>
+
+              </LinearLayout>
+
+          </ScrollView>
+          EOF
+
+          cat > app/src/main/java/com/ameer/gradebook/MainActivity.java <<'EOF'
+          package com.ameer.gradebook;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.widget.Toast;
+
+          public class MainActivity extends Activity {
+
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  setContentView(R.layout.activity_main);
+
+                  findViewById(R.id.studentsButton).setOnClickListener(v ->
+                      Toast.makeText(this, "إدارة الطلاب - سيتم تطويرها", Toast.LENGTH_SHORT).show());
+
+                  findViewById(R.id.classesButton).setOnClickListener(v ->
+                      Toast.makeText(this, "الشعب الدراسية - سيتم تطويرها", Toast.LENGTH_SHORT).show());
+
+                  findViewById(R.id.gradesButton).setOnClickListener(v ->
+                      Toast.makeText(this, "إدخال الدرجات - سيتم تطويره", Toast.LENGTH_SHORT).show());
+
+                  findViewById(R.id.printButton).setOnClickListener(v ->
+                      Toast.makeText(this, "الطباعة - سيتم تطويرها", Toast.LENGTH_SHORT).show());
+              }
+          }
+          EOF
+
+      - name: Build APK
+        run: gradle :app:assembleDebug
+
+      - name: Save project files
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git diff --cached --quiet || git commit -m "Create Android GradeBook project"
+          git push
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradebook-ameer-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
