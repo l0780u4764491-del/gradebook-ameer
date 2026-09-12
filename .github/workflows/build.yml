@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -23,224 +22,28 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
 
-      - name: Create Android project
+      - name: Create required directories
         run: |
           mkdir -p app/src/main/java/com/ameer/gradebook
           mkdir -p app/src/main/res/values
 
-      - name: Create settings.gradle
+      - name: Verify MainActivity
         run: |
-          cat > settings.gradle <<'EOF'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
-
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-
-          rootProject.name = "GradeBook"
-          include(":app")
-          EOF
-
-      - name: Create root build.gradle
-        run: |
-          cat > build.gradle <<'EOF'
-          plugins {
-              id 'com.android.application' version '8.7.3' apply false
-          }
-          EOF
-
-      - name: Create app build.gradle
-        run: |
-          cat > app/build.gradle <<'EOF'
-          plugins {
-              id 'com.android.application'
-          }
-
-          android {
-              namespace 'com.ameer.gradebook'
-              compileSdk 35
-
-              defaultConfig {
-                  applicationId 'com.ameer.gradebook'
-                  minSdk 23
-                  targetSdk 35
-                  versionCode 1
-                  versionName '1.0'
-              }
-          }
-          EOF
-
-      - name: Create AndroidManifest
-        run: |
-          cat > app/src/main/AndroidManifest.xml <<'EOF'
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-              <application
-                  android:theme="@style/AppTheme"
-                  android:label="سجل درجات الاجتماعيات"
-                  android:allowBackup="true"
-                  android:supportsRtl="true">
-
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true">
-
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-
-                  </activity>
-
-              </application>
-
-          </manifest>
-          EOF
-
-      - name: Create styles
-        run: |
-          cat > app/src/main/res/values/styles.xml <<'EOF'
-          <resources>
-
-              <style
-                  name="AppTheme"
-                  parent="android:style/Theme.Material.Light.NoActionBar">
-
-                  <item name="android:fontFamily">sans</item>
-                  <item name="android:windowLightStatusBar">true</item>
-                  <item name="android:statusBarColor">#F5F7FB</item>
-                  <item name="android:navigationBarColor">#F5F7FB</item>
-                  <item name="android:colorAccent">#1565C0</item>
-
-              </style>
-
-          </resources>
-          EOF
-
-      - name: Create MainActivity
-        run: |
-          cat > app/src/main/java/com/ameer/gradebook/MainActivity.java <<'EOF'
-          package com.ameer.gradebook;
-
-          import android.app.Activity;
-          import android.os.Bundle;
-          import android.graphics.Color;
-          import android.view.Gravity;
-          import android.view.View;
-          import android.widget.LinearLayout;
-          import android.widget.TextView;
-          import android.widget.Button;
-
-          public class MainActivity extends Activity {
-
-              @Override
-              protected void onCreate(Bundle savedInstanceState) {
-                  super.onCreate(savedInstanceState);
-
-                  LinearLayout layout = new LinearLayout(this);
-                  layout.setOrientation(LinearLayout.VERTICAL);
-                  layout.setPadding(40, 70, 40, 40);
-                  layout.setGravity(Gravity.CENTER_HORIZONTAL);
-                  layout.setBackgroundColor(Color.rgb(245, 247, 251));
-
-                  TextView title = new TextView(this);
-                  title.setText("سجل درجات الاجتماعيات");
-                  title.setTextSize(30);
-                  title.setTextColor(Color.rgb(20, 30, 45));
-                  title.setGravity(Gravity.CENTER);
-
-                  layout.addView(
-                      title,
-                      new LinearLayout.LayoutParams(
-                          LinearLayout.LayoutParams.MATCH_PARENT,
-                          LinearLayout.LayoutParams.WRAP_CONTENT
-                      )
-                  );
-
-                  TextView teacher = new TextView(this);
-                  teacher.setText("الأستاذ أمير محمد");
-                  teacher.setTextSize(22);
-                  teacher.setTextColor(Color.rgb(70, 80, 95));
-                  teacher.setGravity(Gravity.CENTER);
-                  teacher.setPadding(0, 20, 0, 40);
-
-                  layout.addView(
-                      teacher,
-                      new LinearLayout.LayoutParams(
-                          LinearLayout.LayoutParams.MATCH_PARENT,
-                          LinearLayout.LayoutParams.WRAP_CONTENT
-                      )
-                  );
-
-                  TextView subtitle = new TextView(this);
-                  subtitle.setText("نظام إدارة درجات الطلاب");
-                  subtitle.setTextSize(17);
-                  subtitle.setTextColor(Color.rgb(100, 110, 125));
-                  subtitle.setGravity(Gravity.CENTER);
-                  subtitle.setPadding(0, 0, 0, 35);
-
-                  layout.addView(
-                      subtitle,
-                      new LinearLayout.LayoutParams(
-                          LinearLayout.LayoutParams.MATCH_PARENT,
-                          LinearLayout.LayoutParams.WRAP_CONTENT
-                      )
-                  );
-
-                  String[] buttons = {
-                      "إدارة الطلاب",
-                      "الشعب الدراسية",
-                      "إدخال الدرجات",
-                      "طباعة السجلات"
-                  };
-
-                  for (String text : buttons) {
-
-                      Button button = new Button(this);
-                      button.setText(text);
-                      button.setTextSize(18);
-                      button.setAllCaps(false);
-
-                      LinearLayout.LayoutParams params =
-                          new LinearLayout.LayoutParams(
-                              LinearLayout.LayoutParams.MATCH_PARENT,
-                              75
-                          );
-
-                      params.setMargins(0, 10, 0, 10);
-
-                      layout.addView(button, params);
-                  }
-
-                  setContentView(layout);
-              }
-          }
-          EOF
+          echo "Checking MainActivity.java..."
+          test -f app/src/main/java/com/ameer/gradebook/MainActivity.java
+          echo "MainActivity.java exists."
+          echo "Package:"
+          head -n 5 app/src/main/java/com/ameer/gradebook/MainActivity.java
 
       - name: Build APK
         run: |
-          gradle wrapper --gradle-version 8.10
-          ./gradlew assembleDebug
-
-      - name: Check APK
-        run: |
-          echo "Checking APK..."
-          ls -lh app/build/outputs/apk/debug/
-          test -f app/build/outputs/apk/debug/app-debug.apk
+          gradle assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: GradeBook-APK
+          name: gradebook-apk
           path: app/build/outputs/apk/debug/app-debug.apk
