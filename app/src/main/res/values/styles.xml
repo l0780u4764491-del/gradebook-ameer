@@ -4,9 +4,29 @@
     <style name="AppTheme"
         parent="android:style/Theme.Material.Light.NoActionBar">
 
+        <!-- خلفية التطبيق -->
+        <item name="android:windowBackground">#F5F7FB</item>
+
+        <!-- شريط الحالة -->
+        <item name="android:statusBarColor">#071A3D</item>
+
+        <!-- شريط التنقل السفلي -->
+        <item name="android:navigationBarColor">#071A3D</item>
+
+        <!-- لون النص -->
+        <item name="android:textColorPrimary">#172033</item>
+
+        <!-- لون النص الثانوي -->
+        <item name="android:textColorSecondary">#65728A</item>
+
+        <!-- الخط -->
         <item name="android:fontFamily">sans</item>
+
+        <!-- اتجاه التطبيق -->
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:navigationBarColor">#101827</item>
+
+        <!-- ألوان الواجهة -->
+        <item name="android:colorAccent">#1688FF</item>
 
     </style>
 
