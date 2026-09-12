@@ -8738,29 +8738,27 @@ public class MainActivity extends Activity {
         );
 
         open.setOnClickListener(
-                new View.OnClickListener() {
+        new View.OnClickListener() {
 
-                    @Override
-                    public void onClick(
-                            View v
-                    ) {
+            @Override
+            public void onClick(View v) {
 
-                        int s =
-                                studentSpinner
-                                        .getSelectedItemPosition();
+                int s =
+                        studentSpinner.getSelectedItemPosition();
 
-                        int m =
-                                subjectSpinner
-                                        .getSelectedItemPosition();
+                int m =
+                        subjectSpinner.getSelectedItemPosition();
 
-                        if (s >= 0 && m >= 0) {
+                if (s >= 0 && m >= 0) {
 
-                            openStudentGradeEntry(
-                                    s,
-                                    m
-                            );
-                       }
-                        });
+                    openStudentGradeEntry(
+                            s,
+                            m
+                    );
+                }
+            }
+        }
+);
 
                
         // =========================================================
