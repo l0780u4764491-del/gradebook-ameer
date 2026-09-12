@@ -2,23 +2,16 @@ package com.ameer.gradebook;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -34,663 +27,1115 @@ public class MainActivity extends Activity {
 
     private SharedPreferences prefs;
 
-    private final ArrayList<Student> students = new ArrayList<>();
+    private final ArrayList<String> students = new ArrayList<>();
     private final ArrayList<String> classes = new ArrayList<>();
 
+    private final ArrayList<StudentGrade> grades = new ArrayList<>();
+
     private LinearLayout root;
-    private int blue = Color.rgb(35, 75, 120);
-    private int lightBlue = Color.rgb(235, 242, 250);
-    private int dark = Color.rgb(35, 35, 35);
+
+    private int darkText = Color.rgb(35, 35, 35);
+    private int primary = Color.rgb(25, 90, 150);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        prefs = getSharedPreferences("gradebook_data", Context.MODE_PRIVATE);
+        prefs = getSharedPreferences("gradebook_data", MODE_PRIVATE);
 
         loadData();
+
         showHome();
     }
 
-    // =========================================================
-    // DATA
-    // =========================================================
+    // ============================================================
+    // البيانات
+    // ============================================================
 
-    private static class Student {
-        String name;
+    private static class StudentGrade {
+        String student;
         String className;
         double monthly;
         double mid;
         double second;
-        double finalGrade;
+        double finalExam;
 
-        Student(String name, String className) {
-            this.name = name;
+        StudentGrade(String student, String className,
+                     double monthly, double mid,
+                     double second, double finalExam) {
+            this.student = student;
             this.className = className;
+            this.monthly = monthly;
+            this.mid = mid;
+            this.second = second;
+            this.finalExam = finalExam;
+        }
+
+        double total() {
+            return monthly + mid + second + finalExam;
+        }
+
+        double average() {
+            return total() / 4.0;
+        }
+    }
+
+    private void saveData() {
+        try {
+            JSONArray studentArray = new JSONArray();
+
+            for (String student : students) {
+                studentArray.put(student);
+            }
+
+            JSONArray classArray = new JSONArray();
+
+            for (String className : classes) {
+                classArray.put(className);
+            }
+
+            JSONArray gradeArray = new JSONArray();
+
+            for (StudentGrade grade : grades) {
+                JSONObject object = new JSONObject();
+
+                object.put("student", grade.student);
+                object.put("className", grade.className);
+                object.put("monthly", grade.monthly);
+                object.put("mid", grade.mid);
+                object.put("second", grade.second);
+                object.put("finalExam", grade.finalExam);
+
+                gradeArray.put(object);
+            }
+
+            prefs.edit()
+                    .putString("students", studentArray.toString())
+                    .putString("classes", classArray.toString())
+                    .putString("grades", gradeArray.toString())
+                    .apply();
+
+        } catch (Exception e) {
+            Toast.makeText(
+                    this,
+                    "حدث خطأ أثناء حفظ البيانات",
+                    Toast.LENGTH_SHORT
+            ).show();
         }
     }
 
     private void loadData() {
         students.clear();
         classes.clear();
+        grades.clear();
 
         try {
-            String studentData = prefs.getString("students", "[]");
-            JSONArray arr = new JSONArray(studentData);
+            String studentsText = prefs.getString("students", "[]");
 
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject o = arr.getJSONObject(i);
+            JSONArray studentArray = new JSONArray(studentsText);
 
-                Student s = new Student(
-                        o.optString("name", ""),
-                        o.optString("class", "")
-                );
-
-                s.monthly = o.optDouble("monthly", 0);
-                s.mid = o.optDouble("mid", 0);
-                s.second = o.optDouble("second", 0);
-                s.finalGrade = o.optDouble("final", 0);
-
-                students.add(s);
+            for (int i = 0; i < studentArray.length(); i++) {
+                students.add(studentArray.getString(i));
             }
 
-            String classData = prefs.getString("classes", "[]");
-            JSONArray classArr = new JSONArray(classData);
+            String classesText = prefs.getString("classes", "[]");
 
-            for (int i = 0; i < classArr.length(); i++) {
-                classes.add(classArr.getString(i));
+            JSONArray classArray = new JSONArray(classesText);
+
+            for (int i = 0; i < classArray.length(); i++) {
+                classes.add(classArray.getString(i));
+            }
+
+            String gradesText = prefs.getString("grades", "[]");
+
+            JSONArray gradeArray = new JSONArray(gradesText);
+
+            for (int i = 0; i < gradeArray.length(); i++) {
+
+                JSONObject object = gradeArray.getJSONObject(i);
+
+                grades.add(new StudentGrade(
+                        object.optString("student"),
+                        object.optString("className"),
+                        object.optDouble("monthly", 0),
+                        object.optDouble("mid", 0),
+                        object.optDouble("second", 0),
+                        object.optDouble("finalExam", 0)
+                ));
             }
 
         } catch (Exception e) {
-            Toast.makeText(this, "تعذر تحميل البيانات", Toast.LENGTH_SHORT).show();
+            // في حال كانت البيانات غير موجودة أو تالفة
         }
     }
 
-    private void saveData() {
-        try {
-            JSONArray arr = new JSONArray();
-
-            for (Student s : students) {
-                JSONObject o = new JSONObject();
-
-                o.put("name", s.name);
-                o.put("class", s.className);
-                o.put("monthly", s.monthly);
-                o.put("mid", s.mid);
-                o.put("second", s.second);
-                o.put("final", s.finalGrade);
-
-                arr.put(o);
-            }
-
-            JSONArray classArr = new JSONArray();
-
-            for (String c : classes) {
-                classArr.put(c);
-            }
-
-            prefs.edit()
-                    .putString("students", arr.toString())
-                    .putString("classes", classArr.toString())
-                    .apply();
-
-        } catch (Exception e) {
-            Toast.makeText(this, "حدث خطأ أثناء حفظ البيانات", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    // =========================================================
-    // GENERAL UI
-    // =========================================================
-
-    private int dp(int value) {
-        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
-    }
-
-    private TextView text(String value, float size) {
-        TextView t = new TextView(this);
-
-        t.setText(value);
-        t.setTextSize(size);
-        t.setTextColor(dark);
-        t.setGravity(Gravity.CENTER);
-        t.setPadding(dp(10), dp(8), dp(10), dp(8));
-
-        return t;
-    }
-
-    private Button button(String title) {
-        Button b = new Button(this);
-
-        b.setText(title);
-        b.setTextSize(18);
-        b.setTextColor(Color.BLACK);
-        b.setGravity(Gravity.CENTER);
-        b.setAllCaps(false);
-
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(Color.rgb(220, 223, 225));
-        bg.setCornerRadius(dp(8));
-
-        b.setBackground(bg);
-
-        LinearLayout.LayoutParams p =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        dp(65)
-                );
-
-        p.setMargins(dp(20), dp(8), dp(20), dp(8));
-
-        b.setLayoutParams(p);
-
-        return b;
-    }
-
-    private LinearLayout createRoot() {
-        LinearLayout layout = new LinearLayout(this);
-
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setGravity(Gravity.CENTER_HORIZONTAL);
-        layout.setPadding(dp(10), dp(15), dp(10), dp(15));
-        layout.setBackgroundColor(Color.rgb(247, 249, 253));
-
-        return layout;
-    }
-
-    private ScrollView scroll(LinearLayout content) {
-        ScrollView s = new ScrollView(this);
-
-        s.setFillViewport(true);
-        s.addView(content);
-
-        return s;
-    }
-
-    private TextView title(String value) {
-        TextView t = text(value, 30);
-
-        t.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        t.setTextColor(Color.rgb(25, 35, 50));
-
-        LinearLayout.LayoutParams p =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                );
-
-        p.setMargins(0, dp(10), 0, dp(5));
-
-        t.setLayoutParams(p);
-
-        return t;
-    }
-
-    private TextView subtitle(String value) {
-        TextView t = text(value, 21);
-
-        t.setTextColor(Color.rgb(90, 100, 110));
-
-        LinearLayout.LayoutParams p =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                );
-
-        p.setMargins(0, 0, 0, dp(15));
-
-        t.setLayoutParams(p);
-
-        return t;
-    }
-
-    private TextView header(String value) {
-        TextView t = text(value, 23);
-
-        t.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        t.setTextColor(Color.WHITE);
-        t.setBackgroundColor(blue);
-
-        t.setPadding(dp(10), dp(15), dp(10), dp(15));
-
-        LinearLayout.LayoutParams p =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                );
-
-        p.setMargins(0, 0, 0, dp(15));
-
-        t.setLayoutParams(p);
-
-        return t;
-    }
-
-    private Button backButton() {
-        Button b = button("← العودة");
-
-        b.setTextSize(17);
-
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showHome();
-            }
-        });
-
-        return b;
-    }
-
-    // =========================================================
-    // HOME
-    // =========================================================
-
-    private void showHome() {
-        root = createRoot();
-
-        TextView t = title("سجل درجات الاجتماعيات");
-        root.addView(t);
-
-        root.addView(subtitle("الأستاذ أمير محمد"));
-
-        TextView info = text("نظام إدارة درجات الطلاب", 21);
-        info.setTextColor(Color.rgb(110, 120, 130));
-        root.addView(info);
-
-        addSpace(15);
-
-        Button studentsButton = button("إدارة الطلاب");
-
-        studentsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showStudents();
-            }
-        });
-
-        root.addView(studentsButton);
-
-        Button classesButton = button("الشعب الدراسية");
-
-        classesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showClasses();
-            }
-        });
-
-        root.addView(classesButton);
-
-        Button gradesButton = button("إدخال الدرجات");
-
-        gradesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showGrades();
-            }
-        });
-
-        root.addView(gradesButton);
-
-        Button recordsButton = button("طباعة السجلات");
-
-        recordsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showRecords();
-            }
-        });
-
-        root.addView(recordsButton);
-
-        addSpace(15);
-
-        TextView count = text(
-                "عدد الطلاب: " + students.size()
-                        + "\nعدد الشعب: " + classes.size(),
-                18
+    // ============================================================
+    // الواجهة الأساسية
+    // ============================================================
+
+    private void prepareScreen(String title) {
+
+        root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(16), dp(16), dp(16), dp(16));
+        root.setBackgroundColor(Color.rgb(248, 249, 250));
+
+        TextView titleView = new TextView(this);
+
+        titleView.setText(title);
+        titleView.setTextSize(25);
+        titleView.setTextColor(Color.WHITE);
+        titleView.setGravity(Gravity.CENTER);
+        titleView.setPadding(
+                dp(10),
+                dp(18),
+                dp(10),
+                dp(18)
         );
+        titleView.setBackgroundColor(primary);
 
-        count.setTextColor(Color.rgb(90, 100, 110));
-
-        root.addView(count);
+        root.addView(
+                titleView,
+                new LinearLayout.LayoutParams(
+                        -1,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+        );
 
         setContentView(scroll(root));
     }
 
-    private void addSpace(int height) {
-        TextView space = new TextView(this);
+    private ScrollView scroll(View view) {
 
-        space.setHeight(dp(height));
+        ScrollView scrollView = new ScrollView(this);
 
-        root.addView(space);
+        scrollView.setFillViewport(true);
+        scrollView.addView(view);
+
+        return scrollView;
     }
 
-    // =========================================================
-    // STUDENTS
-    // =========================================================
+    private TextView text(String value, float size) {
+
+        TextView view = new TextView(this);
+
+        view.setText(value);
+        view.setTextSize(size);
+        view.setTextColor(darkText);
+        view.setGravity(Gravity.RIGHT);
+        view.setPadding(
+                dp(8),
+                dp(10),
+                dp(8),
+                dp(10)
+        );
+
+        return view;
+    }
+
+    private Button button(String title) {
+
+        Button button = new Button(this);
+
+        button.setText(title);
+        button.setTextSize(18);
+        button.setAllCaps(false);
+        button.setTextColor(Color.WHITE);
+        button.setBackgroundColor(primary);
+        button.setPadding(
+                dp(10),
+                dp(10),
+                dp(10),
+                dp(10)
+        );
+
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(
+                        -1,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+
+        params.setMargins(
+                0,
+                dp(7),
+                0,
+                dp(7)
+        );
+
+        button.setLayoutParams(params);
+
+        return button;
+    }
+
+    private EditText input(String hint) {
+
+        EditText editText = new EditText(this);
+
+        editText.setHint(hint);
+        editText.setTextSize(18);
+        editText.setSingleLine(true);
+        editText.setGravity(Gravity.RIGHT);
+
+        editText.setPadding(
+                dp(12),
+                dp(8),
+                dp(12),
+                dp(8)
+        );
+
+        return editText;
+    }
+
+    private int dp(int value) {
+        return (int) (
+                value * getResources()
+                        .getDisplayMetrics()
+                        .density
+        );
+    }
+
+    // ============================================================
+    // الصفحة الرئيسية
+    // ============================================================
+
+    private void showHome() {
+
+        prepareScreen("سجل درجات الاجتماعيات");
+
+        TextView teacher = text(
+                "الأستاذ أمير محمد",
+                21
+        );
+
+        teacher.setGravity(Gravity.CENTER);
+        teacher.setTextColor(primary);
+
+        root.addView(teacher);
+
+        TextView subtitle = text(
+                "نظام إدارة درجات الطلاب",
+                18
+        );
+
+        subtitle.setGravity(Gravity.CENTER);
+
+        root.addView(subtitle);
+
+        TextView information = text(
+                "عدد الطلاب: " + students.size()
+                        + "\nعدد الشعب: " + classes.size(),
+                17
+        );
+
+        information.setGravity(Gravity.CENTER);
+
+        root.addView(information);
+
+        Button studentsButton =
+                button("إدارة الطلاب");
+
+        studentsButton.setOnClickListener(
+                v -> showStudents()
+        );
+
+        root.addView(studentsButton);
+
+        Button classesButton =
+                button("الشعب الدراسية");
+
+        classesButton.setOnClickListener(
+                v -> showClasses()
+        );
+
+        root.addView(classesButton);
+
+        Button gradesButton =
+                button("إدخال الدرجات");
+
+        gradesButton.setOnClickListener(
+                v -> showGrades()
+        );
+
+        root.addView(gradesButton);
+
+        Button recordsButton =
+                button("طباعة السجلات");
+
+        recordsButton.setOnClickListener(
+                v -> showRecords()
+        );
+
+        root.addView(recordsButton);
+    }
+
+    // ============================================================
+    // إدارة الطلاب
+    // ============================================================
 
     private void showStudents() {
-        root = createRoot();
 
-        root.addView(header("إدارة الطلاب"));
+        prepareScreen("إدارة الطلاب");
 
-        Button back = backButton();
-        root.addView(back);
+        Button add = button("➕ إضافة طالب");
 
-        Button add = button("＋ إضافة طالب");
-
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addStudentDialog();
-            }
-        });
+        add.setOnClickListener(
+                v -> addStudentDialog()
+        );
 
         root.addView(add);
 
-        if (students.size() == 0) {
+        if (students.isEmpty()) {
+
             TextView empty = text(
-                    "لا يوجد طلاب حاليًا\nاضغط «إضافة طالب» لإضافة أول طالب",
-                    19
+                    "لا يوجد طلاب حالياً.\nاضغط على «إضافة طالب» لإضافة أول طالب.",
+                    18
             );
 
-            empty.setPadding(dp(10), dp(30), dp(10), dp(30));
+            empty.setGravity(Gravity.CENTER);
 
             root.addView(empty);
 
         } else {
 
+            TextView count = text(
+                    "عدد الطلاب: " + students.size(),
+                    18
+            );
+
+            root.addView(count);
+
             for (int i = 0; i < students.size(); i++) {
 
-                final Student student = students.get(i);
+                final int index = i;
 
-                LinearLayout card = new LinearLayout(this);
+                LinearLayout row =
+                        new LinearLayout(this);
 
-                card.setOrientation(LinearLayout.VERTICAL);
-                card.setPadding(dp(15), dp(10), dp(15), dp(10));
-                card.setBackgroundColor(Color.WHITE);
+                row.setOrientation(
+                        LinearLayout.HORIZONTAL
+                );
 
-                LinearLayout.LayoutParams cp =
-                        new LinearLayout.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT
-                        );
-
-                cp.setMargins(dp(10), dp(5), dp(10), dp(5));
-
-                card.setLayoutParams(cp);
+                row.setGravity(Gravity.CENTER_VERTICAL);
 
                 TextView name = text(
-                        (i + 1) + ". " + student.name,
-                        20
+                        (i + 1) + " - " + students.get(i),
+                        18
                 );
 
-                name.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                name.setGravity(Gravity.RIGHT);
 
-                card.addView(name);
-
-                TextView cls = text(
-                        "الشعبة: " +
-                                (student.className.length() == 0
-                                        ? "غير محددة"
-                                        : student.className),
-                        17
+                row.addView(
+                        name,
+                        new LinearLayout.LayoutParams(
+                                0,
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                1
+                        )
                 );
 
-                card.addView(cls);
+                Button delete =
+                        new Button(this);
 
-                Button delete = new Button(this);
-
-                delete.setText("حذف الطالب");
+                delete.setText("حذف");
                 delete.setTextSize(15);
                 delete.setAllCaps(false);
 
-                delete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        confirmDeleteStudent(student);
-                    }
-                });
-
-                card.addView(delete);
-
-                root.addView(card);
-            }
-        }
-
-        setContentView(scroll(root));
-    }
-
-    private void addStudentDialog() {
-
-        LinearLayout box = new LinearLayout(this);
-
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.setPadding(dp(25), dp(5), dp(25), 0);
-
-        final EditText name = new EditText(this);
-
-        name.setHint("اسم الطالب");
-        name.setTextSize(18);
-        name.setSingleLine(true);
-
-        box.addView(name);
-
-        final EditText className = new EditText(this);
-
-        className.setHint("الشعبة (مثال: أ)");
-        className.setTextSize(18);
-        className.setSingleLine(true);
-
-        box.addView(className);
-
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("إضافة طالب")
-                .setView(box)
-                .setNegativeButton("إلغاء", null)
-                .setPositiveButton("حفظ", null)
-                .create();
-
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface d) {
-
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                        .setOnClickListener(new View.OnClickListener() {
-
-                            @Override
-                            public void onClick(View v) {
-
-                                String n = name.getText().toString().trim();
-                                String c = className.getText().toString().trim();
-
-                                if (n.length() == 0) {
-                                    name.setError("اكتب اسم الطالب");
-                                    return;
-                                }
-
-                                Student s = new Student(n, c);
-
-                                students.add(s);
-
-                                if (c.length() > 0 && !classes.contains(c)) {
-                                    classes.add(c);
-                                }
-
-                                saveData();
-
-                                dialog.dismiss();
-
-                                Toast.makeText(
-                                        MainActivity.this,
-                                        "تمت إضافة الطالب بنجاح",
-                                        Toast.LENGTH_SHORT
-                                ).show();
-
-                                showStudents();
-                            }
-                        });
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void confirmDeleteStudent(final Student student) {
-
-        new AlertDialog.Builder(this)
-                .setTitle("حذف الطالب")
-                .setMessage(
-                        "هل تريد حذف الطالب:\n\n" +
-                                student.name +
-                                "\n\nسيتم حذف درجاته أيضًا."
-                )
-                .setNegativeButton("إلغاء", null)
-                .setPositiveButton("حذف", new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        students.remove(student);
-
-                        saveData();
-
-                        Toast.makeText(
-                                MainActivity.this,
-                                "تم حذف الطالب",
-                                Toast.LENGTH_SHORT
-                        ).show();
-
-                        showStudents();
-                    }
-                })
-                .show();
-    }
-
-    // =========================================================
-    // CLASSES
-    // =========================================================
-
-    private void showClasses() {
-
-        root = createRoot();
-
-        root.addView(header("الشعب الدراسية"));
-
-        root.addView(backButton());
-
-        Button add = button("＋ إضافة شعبة");
-
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addClassDialog();
-            }
-        });
-
-        root.addView(add);
-
-        if (classes.size() == 0) {
-
-            root.addView(text(
-                    "لا توجد شعب دراسية حاليًا",
-                    19
-            ));
-
-        } else {
-
-            for (int i = 0; i < classes.size(); i++) {
-
-                final String className = classes.get(i);
-
-                LinearLayout row = new LinearLayout(this);
-
-                row.setOrientation(LinearLayout.HORIZONTAL);
-                row.setGravity(Gravity.CENTER_VERTICAL);
-                row.setPadding(dp(15), dp(8), dp(15), dp(8));
-
-                LinearLayout.LayoutParams rp =
-                        new LinearLayout.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT
-                        );
-
-                rp.setMargins(dp(10), dp(5), dp(10), dp(5));
-
-                row.setLayoutParams(rp);
-
-                TextView name = text(
-                        "الشعبة: " + className,
-                        19
+                delete.setOnClickListener(
+                        v -> deleteStudent(index)
                 );
 
-                LinearLayout.LayoutParams np =
+                row.addView(
+                        delete,
                         new LinearLayout.LayoutParams(
-                                0,
-                                ViewGroup.LayoutParams.WRAP_CONTENT,
-                                1
-                        );
-
-                name.setLayoutParams(np);
-
-                row.addView(name);
-
-                Button delete = new Button(this);
-
-                delete.setText("حذف");
-                delete.setAllCaps(false);
-
-                delete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setTitle("حذف الشعبة")
-                                .setMessage(
-                                        "هل تريد حذف الشعبة: " +
-                                                className + " ؟"
-                                )
-                                .setNegativeButton("إلغاء", null)
-                                .setPositiveButton(
-                                        "حذف",
-                                        new DialogInterface.OnClickListener() {
-
-                                            @Override
-                                            public void onClick(
-                                                    DialogInterface dialog,
-                                                    int which) {
-
-                                                classes.remove(className);
-
-                                                saveData();
-
-                                                showClasses();
-                                            }
-                                        }
-                                )
-                                .show();
-                    }
-                });
-
-                row.addView(delete);
+                                dp(80),
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                );
 
                 root.addView(row);
             }
         }
 
-        setContentView(scroll(root));
+        Button back = button("⬅ العودة للرئيسية");
+
+        back.setOnClickListener(
+                v -> showHome()
+        );
+
+        root.addView(back);
+    }
+
+    private void addStudentDialog() {
+
+        final EditText input =
+                input("اسم الطالب");
+
+        new AlertDialog.Builder(this)
+                .setTitle("إضافة طالب")
+                .setView(input)
+                .setPositiveButton(
+                        "إضافة",
+                        (dialog, which) -> {
+
+                            String name =
+                                    input.getText()
+                                            .toString()
+                                            .trim();
+
+                            if (name.isEmpty()) {
+
+                                Toast.makeText(
+                                        this,
+                                        "يرجى إدخال اسم الطالب",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                                return;
+                            }
+
+                            if (students.contains(name)) {
+
+                                Toast.makeText(
+                                        this,
+                                        "الطالب موجود مسبقاً",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                                return;
+                            }
+
+                            students.add(name);
+
+                            saveData();
+
+                            showStudents();
+
+                            Toast.makeText(
+                                    this,
+                                    "تمت إضافة الطالب",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                )
+                .setNegativeButton(
+                        "إلغاء",
+                        null
+                )
+                .show();
+    }
+
+    private void deleteStudent(int index) {
+
+        if (index < 0 || index >= students.size()) {
+            return;
+        }
+
+        String name = students.get(index);
+
+        new AlertDialog.Builder(this)
+                .setTitle("حذف الطالب")
+                .setMessage(
+                        "هل تريد حذف الطالب:\n" + name + " ؟"
+                )
+                .setPositiveButton(
+                        "حذف",
+                        (dialog, which) -> {
+
+                            students.remove(index);
+
+                            for (int i = grades.size() - 1;
+                                 i >= 0;
+                                 i--) {
+
+                                if (grades.get(i).student
+                                        .equals(name)) {
+
+                                    grades.remove(i);
+                                }
+                            }
+
+                            saveData();
+
+                            showStudents();
+                        }
+                )
+                .setNegativeButton(
+                        "إلغاء",
+                        null
+                )
+                .show();
+    }
+
+    // ============================================================
+    // الشعب الدراسية
+    // ============================================================
+
+    private void showClasses() {
+
+        prepareScreen("الشعب الدراسية");
+
+        Button add = button("➕ إضافة شعبة");
+
+        add.setOnClickListener(
+                v -> addClassDialog()
+        );
+
+        root.addView(add);
+
+        if (classes.isEmpty()) {
+
+            TextView empty = text(
+                    "لا توجد شعب دراسية حالياً.",
+                    18
+            );
+
+            empty.setGravity(Gravity.CENTER);
+
+            root.addView(empty);
+
+        } else {
+
+            TextView count = text(
+                    "عدد الشعب: " + classes.size(),
+                    18
+            );
+
+            root.addView(count);
+
+            for (int i = 0; i < classes.size(); i++) {
+
+                final int index = i;
+
+                LinearLayout row =
+                        new LinearLayout(this);
+
+                row.setOrientation(
+                        LinearLayout.HORIZONTAL
+                );
+
+                row.setGravity(
+                        Gravity.CENTER_VERTICAL
+                );
+
+                TextView name = text(
+                        (i + 1) + " - " + classes.get(i),
+                        18
+                );
+
+                row.addView(
+                        name,
+                        new LinearLayout.LayoutParams(
+                                0,
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                1
+                        )
+                );
+
+                Button delete =
+                        new Button(this);
+
+                delete.setText("حذف");
+                delete.setAllCaps(false);
+
+                delete.setOnClickListener(
+                        v -> deleteClass(index)
+                );
+
+                row.addView(
+                        delete,
+                        new LinearLayout.LayoutParams(
+                                dp(80),
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                );
+
+                root.addView(row);
+            }
+        }
+
+        Button back = button("⬅ العودة للرئيسية");
+
+        back.setOnClickListener(
+                v -> showHome()
+        );
+
+        root.addView(back);
     }
 
     private void addClassDialog() {
 
-        final EditText input = new EditText(this);
-
-        input.setHint("اسم الشعبة");
-        input.setTextSize(18);
-        input.setSingleLine(true);
-        input.setPadding(dp(20), dp(10), dp(20), dp(10));
+        final EditText input =
+                input("اسم الشعبة");
 
         new AlertDialog.Builder(this)
                 .setTitle("إضافة شعبة")
-     
+                .setView(input)
+                .setPositiveButton(
+                        "إضافة",
+                        (dialog, which) -> {
+
+                            String name =
+                                    input.getText()
+                                            .toString()
+                                            .trim();
+
+                            if (name.isEmpty()) {
+
+                                Toast.makeText(
+                                        this,
+                                        "يرجى إدخال اسم الشعبة",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                                return;
+                            }
+
+                            if (classes.contains(name)) {
+
+                                Toast.makeText(
+                                        this,
+                                        "الشعبة موجودة مسبقاً",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                                return;
+                            }
+
+                            classes.add(name);
+
+                            saveData();
+
+                            showClasses();
+
+                            Toast.makeText(
+                                    this,
+                                    "تمت إضافة الشعبة",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                )
+                .setNegativeButton(
+                        "إلغاء",
+                        null
+                )
+                .show();
+    }
+
+    private void deleteClass(int index) {
+
+        if (index < 0 || index >= classes.size()) {
+            return;
+        }
+
+        String name = classes.get(index);
+
+        new AlertDialog.Builder(this)
+                .setTitle("حذف الشعبة")
+                .setMessage(
+                        "هل تريد حذف الشعبة:\n" + name + " ؟"
+                )
+                .setPositiveButton(
+                        "حذف",
+                 (dialog, which) -> {
+
+                    classes.remove(index);
+
+                    saveData();
+
+                    showClasses();
+                }
+        )
+        .setNegativeButton(
+                "إلغاء",
+                null
+        )
+        .show();
+    }
+
+    // ============================================================
+    // إدخال الدرجات
+    // ============================================================
+
+    private void showGrades() {
+
+        prepareScreen("إدخال الدرجات");
+
+        if (students.isEmpty()) {
+
+            TextView message = text(
+                    "لا يوجد طلاب.\nأضف الطلاب أولاً من إدارة الطلاب.",
+                    19
+            );
+
+            message.setGravity(Gravity.CENTER);
+
+            root.addView(message);
+
+        } else {
+
+            TextView message = text(
+                    "اختر الطالب وأدخل درجاته ثم اضغط حفظ الدرجات.",
+                    17
+            );
+
+            root.addView(message);
+
+            final Spinner studentSpinner =
+                    new Spinner(this);
+
+            ArrayAdapter<String> studentAdapter =
+                    new ArrayAdapter<>(
+                            this,
+                            android.R.layout.simple_spinner_item,
+                            students
+                    );
+
+            studentAdapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item
+            );
+
+            studentSpinner.setAdapter(studentAdapter);
+
+            root.addView(studentSpinner);
+
+            final Spinner classSpinner =
+                    new Spinner(this);
+
+            ArrayList<String> classOptions =
+                    new ArrayList<>();
+
+            if (classes.isEmpty()) {
+                classOptions.add("بدون شعبة");
+            } else {
+                classOptions.addAll(classes);
+            }
+
+            ArrayAdapter<String> classAdapter =
+                    new ArrayAdapter<>(
+                            this,
+                            android.R.layout.simple_spinner_item,
+                            classOptions
+                    );
+
+            classAdapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item
+            );
+
+            classSpinner.setAdapter(classAdapter);
+
+            root.addView(classSpinner);
+
+            EditText monthly =
+                    gradeInput("درجة الشهر الأول");
+
+            EditText mid =
+                    gradeInput("درجة نصف السنة");
+
+            EditText second =
+                    gradeInput("درجة الشهر الثاني");
+
+            EditText finalExam =
+                    gradeInput("درجة الامتحان النهائي");
+
+            root.addView(monthly);
+            root.addView(mid);
+            root.addView(second);
+            root.addView(finalExam);
+
+            Button save =
+                    button("💾 حفظ الدرجات");
+
+            save.setOnClickListener(v -> {
+
+                String student =
+                        studentSpinner.getSelectedItem().toString();
+
+                String className =
+                        classSpinner.getSelectedItem().toString();
+
+                double monthlyValue =
+                        gradeValue(monthly);
+
+                double midValue =
+                        gradeValue(mid);
+
+                double secondValue =
+                        gradeValue(second);
+
+                double finalValue =
+                        gradeValue(finalExam);
+
+                if (monthlyValue < 0 ||
+                        midValue < 0 ||
+                        secondValue < 0 ||
+                        finalValue < 0) {
+
+                    Toast.makeText(
+                            this,
+                            "الدرجات يجب أن تكون من 0 إلى 100",
+                            Toast.LENGTH_LONG
+                    ).show();
+
+                    return;
+                }
+
+                StudentGrade old =
+                        findGrade(student);
+
+                if (old != null) {
+
+                    old.className = className;
+                    old.monthly = monthlyValue;
+                    old.mid = midValue;
+                    old.second = secondValue;
+                    old.finalExam = finalValue;
+
+                } else {
+
+                    grades.add(
+                            new StudentGrade(
+                                    student,
+                                    className,
+                                    monthlyValue,
+                                    midValue,
+                                    secondValue,
+                                    finalValue
+                            )
+                    );
+                }
+
+                saveData();
+
+                Toast.makeText(
+                        this,
+                        "تم حفظ درجات الطالب بنجاح",
+                        Toast.LENGTH_SHORT
+                ).show();
+            });
+
+            root.addView(save);
+
+            Button records =
+                    button("📋 عرض السجلات");
+
+            records.setOnClickListener(
+                    v -> showRecords()
+            );
+
+            root.addView(records);
+        }
+
+        Button back =
+                button("⬅ العودة للرئيسية");
+
+        back.setOnClickListener(
+                v -> showHome()
+        );
+
+        root.addView(back);
+    }
+
+    private EditText gradeInput(String hint) {
+
+        EditText editText = input(hint);
+
+        editText.setInputType(
+                android.text.InputType.TYPE_CLASS_NUMBER
+                        | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        );
+
+        return editText;
+    }
+
+    private double gradeValue(EditText editText) {
+
+        String value =
+                editText.getText().toString().trim();
+
+        if (value.isEmpty()) {
+            return 0;
+        }
+
+        try {
+
+            double number =
+                    Double.parseDouble(value);
+
+            if (number < 0 || number > 100) {
+                return -1;
+            }
+
+            return number;
+
+        } catch (Exception e) {
+
+            return -1;
+        }
+    }
+
+    private StudentGrade findGrade(String student) {
+
+        for (StudentGrade grade : grades) {
+
+            if (grade.student.equals(student)) {
+                return grade;
+            }
+        }
+
+        return null;
+    }
+
+    // ============================================================
+    // السجلات
+    // ============================================================
+
+    private void showRecords() {
+
+        prepareScreen("سجلات الطلاب");
+
+        if (grades.isEmpty()) {
+
+            TextView empty = text(
+                    "لا توجد درجات محفوظة حتى الآن.",
+                    19
+            );
+
+            empty.setGravity(Gravity.CENTER);
+
+            root.addView(empty);
+
+        } else {
+
+            for (StudentGrade grade : grades) {
+
+                TextView record = text(
+                        "👤 الطالب: " + grade.student
+                                + "\n🏫 الشعبة: " + grade.className
+                                + "\nالشهر الأول: " + grade.monthly
+                                + "\nنصف السنة: " + grade.mid
+                                + "\nالشهر الثاني: " + grade.second
+                                + "\nالنهائي: " + grade.finalExam
+                                + "\nالمجموع: " + grade.total()
+                                + "\nالمعدل: "
+                                + String.format(
+                                        Locale.US,
+                                        "%.2f",
+                                        grade.average()
+                                ),
+                        17
+                );
+
+                root.addView(record);
+            }
+        }
+
+        Button share =
+                button("📤 مشاركة السجلات");
+
+        share.setOnClickListener(
+                v -> shareRecords()
+        );
+
+        root.addView(share);
+
+        Button back =
+                button("⬅ العودة للرئيسية");
+
+        back.setOnClickListener(
+                v -> showHome()
+        );
+
+        root.addView(back);
+    }
+
+    private void shareRecords() {
+
+        if (grades.isEmpty()) {
+
+            Toast.makeText(
+                    this,
+                    "لا توجد سجلات لمشاركتها",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        StringBuilder text =
+                new StringBuilder();
+
+        text.append("سجل درجات الاجتماعيات\n");
+        text.append("الأستاذ أمير محمد\n");
+        text.append("====================\n\n");
+
+        for (StudentGrade grade : grades) {
+
+            text.append("الطالب: ")
+                    .append(grade.student)
+                    .append("\n");
+
+            text.append("الشعبة: ")
+                    .append(grade.className)
+                    .append("\n");
+
+            text.append("الشهر الأول: ")
+                    .append(grade.monthly)
+                    .append("\n");
+
+            text.append("نصف السنة: ")
+                    .append(grade.mid)
+                    .append("\n");
+
+            text.append("الشهر الثاني: ")
+                    .append(grade.second)
+                    .append("\n");
+
+            text.append("النهائي: ")
+                    .append(grade.finalExam)
+                    .append("\n");
+
+            text.append("المجموع: ")
+                    .append(grade.total())
+                    .append("\n");
+
+            text.append("المعدل: ")
+                    .append(
+                            String.format(
+                                    Locale.US,
+                                    "%.2f",
+                                    grade.average()
+                            )
+                    )
+                    .append("\n");
+
+            text.append("--------------------\n");
+        }
+
+        Intent intent =
+                new Intent(Intent.ACTION_SEND);
+
+        intent.setType("text/plain");
+
+        intent.putExtra(
+                Intent.EXTRA_SUBJECT,
+                "سجل درجات الاجتماعيات"
+        );
+
+        intent.putExtra(
+                Intent.EXTRA_TEXT,
+                text.toString()
+        );
+
+        startActivity(
+                Intent.createChooser(
+                        intent,
+                        "مشاركة السجلات"
+                )
+        );
+    }
+
+    @Override
+    public void onBackPressed() {
+        showHome();
+    }
+}          
