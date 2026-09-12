@@ -1136,11 +1136,16 @@ public class MainActivity extends Activity {
                                     }
                                 }
                             }
-
-                            classes.put(
-                                    index,
-                                    newName
-                            );
+try {
+    classes.put(index, newName);
+} catch (Exception e) {
+    Toast.makeText(
+            this,
+            "حدث خطأ أثناء تعديل الشعبة",
+            Toast.LENGTH_SHORT
+    ).show();
+    return;
+}
 
                             for (int i = 0;
                                  i < students.length();
