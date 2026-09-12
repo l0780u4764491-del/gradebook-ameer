@@ -745,69 +745,66 @@ public class MainActivity extends Activity {
                     }
                 };
 
-        search.addTextChangedListener(
-                new TextWatcher() {
+        search.addTextChangedListener(new TextWatcher() {
 
+    @Override
+    public void beforeTextChanged(
+            CharSequence s,
+            int start,
+            int count,
+            int after) {
+    }
+
+    @Override
+    public void onTextChanged(
+            CharSequence s,
+            int start,
+            int before,
+            int count) {
+
+        String query = s.toString().trim().toLowerCase(Locale.ROOT);
+
+        list.removeAllViews();
+
+        for (int i = 0; i < students.size(); i++) {
+
+            String student = students.get(i);
+
+            if (student.toLowerCase(Locale.ROOT).contains(query)) {
+
+                final int index = i;
+
+                TextView item = new TextView(MainActivity.this);
+                item.setText(student);
+                item.setTextSize(20);
+                item.setPadding(20, 25, 20, 25);
+                item.setGravity(Gravity.CENTER);
+
+                item.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void beforeTextCh
-                    CharSequence s,
-                    int start,
-                    int count,
-                    int after
-            ) {
-            }
-
-            @Override
-            public void onTextChanged(
-                    CharSequence s,
-                    int start,
-                    int before,
-                    int count
-            ) {
-                String query = s.toString().trim().toLowerCase(Locale.ROOT);
-
-                list.removeAllViews();
-
-                for (int i = 0; i < students.size(); i++) {
-                    String student = students.get(i);
-
-                    if (student.toLowerCase(Locale.ROOT).contains(query)) {
-                        final int index = i;
-
-                        Button item = new Button(MainActivity.this);
-                        item.setText("👤 " + student);
-                        item.setTextSize(18);
-                        item.setGravity(Gravity.CENTER);
-                        item.setAllCaps(false);
-
-                        item.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showStudentGrades(index);
-                            }
-                        });
-
-                        list.addView(item);
+                    public void onClick(View v) {
+                        showStudentOptions(index);
                     }
-                }
+                });
 
-                if (list.getChildCount() == 0) {
-                    TextView empty = new TextView(MainActivity.this);
-                    empty.setText("لا يوجد طالب مطابق للبحث");
-                    empty.setTextSize(18);
-                    empty.setGravity(Gravity.CENTER);
-                    empty.setPadding(dp(20), dp(30), dp(20), dp(30));
-                    list.addView(empty);
-                }
+                list.addView(item);
             }
+        }
 
-            @Override
-            public void afterTextChanged(
-                    android.text.Editable s
-            ) {
-            }
-        });
+        if (list.getChildCount() == 0) {
+            TextView empty = new TextView(MainActivity.this);
+            empty.setText("لا توجد نتائج");
+            empty.setTextSize(18);
+            empty.setPadding(20, 40, 20, 40);
+            empty.setGravity(Gravity.CENTER);
+            list.addView(empty);
+        }
+    }
 
+    @Override
+    public void afterTextChanged(Editable s) {
+    }
+});
     }
 
     private void showStudentGrades(int index) {
