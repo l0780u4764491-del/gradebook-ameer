@@ -8759,15 +8759,11 @@ public class MainActivity extends Activity {
             }
         }
 );
-
-               
         // =========================================================
     // القسم 14
     // لوحة التحليل المتقدمة وتقارير الصف
     // =========================================================
-
-    private void showAdvancedDashboard() {
-
+ private void showAdvancedDashboard() {
         createBase();
 
         TextView title =
